@@ -32,28 +32,6 @@ const pokedexEntry: React.FC<pokedexEntryProps> = ({
   //radius,
 }) => {
   const length = Math.sqrt(2 * Math.pow(innerRadius / 2, 2));
-  console.log(data);
-  if (data === null) return <div></div>;
-  // return (
-  //   <div
-  //     className={"ui basic segment"}
-  //     style={{
-  //       position: "absolute",
-  //       height: length - 10,
-  //       width: length - 10,
-  //       left: `${window.innerWidth / 2 - length / 2 + 5}px`,
-  //       top: `${(window.innerHeight - length) / 2 - 5}px`,
-  //       border: "none",
-  //       padding: "0",
-  //       background: "transparent",
-  //     }}
-  //   >
-  //     <h1 className="ui centered header">
-  //       {"Hover over a Pokemon for more Information"}
-  //     </h1>
-  //   </div>
-  // );
-
   const getPicture = (type: string) => {
     switch (type) {
       case "bug":
@@ -96,6 +74,27 @@ const pokedexEntry: React.FC<pokedexEntryProps> = ({
         return normalType;
     }
   };
+
+  if (data === null)
+    return (
+      <div
+        className={"ui basic segment"}
+        style={{
+          position: "absolute",
+          height: length,
+          width: length,
+          left: `${(window.innerWidth - length) / 2 - 5}px`,
+          top: `${window.innerHeight / 2 - length}px`,
+          border: "none",
+          padding: "0",
+          background: "transparent",
+        }}
+      >
+        <h2 className="ui centered header">
+          {"Hover over a Pokemon for more Information"}
+        </h2>
+      </div>
+    );
 
   const renderTypeImages = (type1: string, type2: string) => {
     if (type2 === "" || type2 === type1) {
@@ -150,7 +149,7 @@ const pokedexEntry: React.FC<pokedexEntryProps> = ({
         height: length,
         width: length,
         left: `${(window.innerWidth - length) / 2 + 5}px`,
-        top: `${window.innerHeight / 2 - length + 20}px`,
+        top: `${window.innerHeight / 2 - length}px`,
         border: "none",
         padding: "0",
         background: "transparent",
@@ -161,7 +160,7 @@ const pokedexEntry: React.FC<pokedexEntryProps> = ({
         style={{ background: "transparent", border: "none", padding: "0" }}
       >
         <img
-          className="ui centered huge image"
+          className="ui centered small image"
           src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${data.pokedex_number}.png`}
           alt={"no pokemon found"}
         />
@@ -169,11 +168,16 @@ const pokedexEntry: React.FC<pokedexEntryProps> = ({
       {renderTypeImages(data.type1, data.type2)}
       <div
         className="ui basic segment"
-        style={{ background: "transparent", border: "none", padding: "0" }}
+        style={{
+          background: "transparent",
+          border: "none",
+          padding: "0",
+          width: "auto",
+        }}
       >
-        <h3 className="ui header">{`No. ${data.pokedex_number} ${capitalize(
+        <h5 className="ui header">{`No. ${data.pokedex_number} ${capitalize(
           data.name
-        )}`}</h3>
+        )}`}</h5>
       </div>
     </div>
   );

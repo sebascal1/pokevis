@@ -330,7 +330,7 @@ const TreeVis: React.FC<VisProps> = ({ data }) => {
 
       pokemonStats.forEach((stat, i) => {
         //let angle = (stat / maxStats[i]) * 2 * Math.PI;
-        let statThickness = 17;
+        let statThickness = 10;
         let outerRad = innerRadius - 10 - statThickness * i;
         let statArc = d3
           .arc()
@@ -369,7 +369,7 @@ const TreeVis: React.FC<VisProps> = ({ data }) => {
           .attr("x", 5)
           .attr("y", -outerRad + statThickness / 2 + 3)
           .attr("fill", "black")
-          .style("font-size", 12)
+          .style("font-size", 10)
           .attr("stroke-width", haloWidth);
       });
 
