@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import "./App.css";
-import Vis from "./Components/Vis";
 import * as d3 from "d3";
 import { rawDataEntry } from "./Utils/types";
 import TreeVis from "./Components/TreeVis";
@@ -10,18 +9,14 @@ function App() {
 
   //get the data upon loading the screen
   useEffect(() => {
-    const getData = async () => {
-      await d3
-        .csv("./pokemon.csv")
-        .then((response) => {
-          console.log("getting response");
-          setData(response as unknown as rawDataEntry[]);
-        })
-        .catch((e) => {
-          console.log(e);
-        });
-    };
-    getData();
+    d3.csv("./pokemon.csv")
+      .then((response) => {
+        console.log("getting response");
+        setData(response as unknown as rawDataEntry[]);
+      })
+      .catch((e) => {
+        console.log(e);
+      });
   }, []);
   return (
     <div className="App" style={{ position: "absolute" }}>
