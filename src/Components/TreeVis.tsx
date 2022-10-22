@@ -4,24 +4,10 @@ import { rawDataEntry, VisProps } from "../Utils/types";
 import { colourTypeScale, pokemonTypes } from "../Utils";
 import PokedexEntry from "./pokedexEntry";
 import { HierarchyNode } from "d3";
-import { hover } from "@testing-library/user-event/dist/hover";
-
-type PieCharEntry = {
-  name: string;
-  value: number;
-};
-
-export type treeEntry = {
-  name: string;
-  children: treeEntry[];
-};
 
 const TreeVis: React.FC<VisProps> = ({ data }) => {
   const [hoveredPokemonData, setHoveredPokemonData] =
     useState<HierarchyNode<rawDataEntry> | null>(null);
-  const [hoveredPokemonPokedex, setHoveredPokemonPokedex] = useState<
-    string | null
-  >(null);
 
   const svgRef = useRef<SVGSVGElement | null>(null);
   let width = window.innerWidth; // outer width, in pixels
@@ -35,29 +21,28 @@ const TreeVis: React.FC<VisProps> = ({ data }) => {
 
   const r = 2; // radius of nodes
   // @ts-ignore
-  const fill = (d: any) => colourTypeScale[d.data.name]; // fill for nodes
   const stroke = "#555"; // stroke for links
   const strokeWidth = 2; // stroke width for links
   const strokeOpacity = 0.4; // stroke opacity for linkss
   const halo = "#fff"; // color of label halo
   const haloWidth = 3; // padding around the labels
 
-  const numberOfGradientStops = 3;
-  const stops = d3
-    .range(numberOfGradientStops)
-    .map((i) => i / (numberOfGradientStops - 1));
-
-  const partition = (data: any) =>
-    d3.partition().size([2 * Math.PI, radius * radius])(
-      d3
-        .hierarchy(data)
-        .sum((d) => d.value)
-        // @ts-ignore
-        .sort((a, b) => a.value - b.value)
-    );
-
   //root for the tree graph
   useEffect(() => {
+    const numberOfGradientStops = 3;
+    const stops = d3
+      .range(numberOfGradientStops)
+      .map((i) => i / (numberOfGradientStops - 1));
+
+    const partition = (data: any) =>
+      d3.partition().size([2 * Math.PI, radius * radius])(
+        d3
+          .hierarchy(data)
+          .sum((d) => d.value)
+          // @ts-ignore
+          .sort((a, b) => a.value - b.value)
+      );
+
     let dataObject: any = {};
 
     //parse the data in an object that can then be fed into the d3 tree hierarchy
@@ -136,8 +121,6 @@ const TreeVis: React.FC<VisProps> = ({ data }) => {
     svg.selectAll("*").remove(); // Clear svg content before adding new elements
 
     const defs = svg.append("defs");
-    const legendGradientId = "legend-gradient";
-
     pokemonTypes.forEach((type) => {
       for (let i = 0; i < pokemonTypes.length; i++) {
         //if (type === pokemonTypes[i]) return;
@@ -179,7 +162,7 @@ const TreeVis: React.FC<VisProps> = ({ data }) => {
       .tree()
       .size([2 * Math.PI, outerRadius2 + 10])
       // @ts-ignore
-      .separation((a, b) => (a.parent == b.parent ? 1.5 : 1.5))(root);
+      .separation((a, b) => (a.parent === b.parent ? 1.5 : 1.5))(root);
 
     svg
       .append("g")
@@ -221,7 +204,7 @@ const TreeVis: React.FC<VisProps> = ({ data }) => {
           .radius((d) => d.y)
       );
 
-    const path = svg
+    svg
       .append("g")
       .selectAll("path")
       .data(root.descendants())
@@ -255,6 +238,8 @@ const TreeVis: React.FC<VisProps> = ({ data }) => {
                   // @ts-ignore
                   d.data.name !== datum.parent.data.name)
               );
+            } else {
+              return d;
             }
           })
           .style("opacity", 0.25);
@@ -263,7 +248,7 @@ const TreeVis: React.FC<VisProps> = ({ data }) => {
 
         d3.select(this).style("opacity", 1);
       })
-      .on("mouseleave", function (e, datum) {
+      .on("mouseleave", function () {
         svg.selectAll("#donutArc").style("opacity", 1);
         d3.selectAll("#treePath").style("stroke-opacity", strokeOpacity);
       });
@@ -285,9 +270,9 @@ const TreeVis: React.FC<VisProps> = ({ data }) => {
         .append("text")
         .attr("transform", (d: any) => `rotate(${d.x >= Math.PI ? 180 : 0})`)
         .attr("dy", "0.32em")
-        .attr("x", (d: any) => (d.x < Math.PI === !d.children ? 12 : -12))
+        .attr("x", (d: any) => (d.x < Math.PI && !d.children ? 12 : -12))
         .attr("text-anchor", (d: any) =>
-          d.x < Math.PI === !d.children ? "start" : "end"
+          d.x < Math.PI && !d.children ? "start" : "end"
         )
         .attr("paint-order", "stroke")
         .attr("stroke", halo)
@@ -318,8 +303,9 @@ const TreeVis: React.FC<VisProps> = ({ data }) => {
         setHoveredPokemonData(datum as HierarchyNode<rawDataEntry>);
         d3.select(this).attr("r", 5);
       })
-      .on("mouseleave", function (datum, d) {
-        //setHoveredPokemonData(null);
+      .on("mouseleave", function () {
+        console.log("leaving");
+        setHoveredPokemonData(null);
         d3.select(this).attr("r", r);
       });
 
@@ -330,6 +316,7 @@ const TreeVis: React.FC<VisProps> = ({ data }) => {
       .attr("cx", 0)
       .attr("r", innerRadius)
       .attr("fill", "white");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hoveredPokemonData]);
 
   return (

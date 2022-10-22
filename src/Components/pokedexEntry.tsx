@@ -2,18 +2,19 @@ import React from "react";
 import { capitalize } from "../Utils";
 import { rawDataEntry } from "../Utils/types";
 
-type pokedexEntry = {
+type pokedexEntryProps = {
   data: rawDataEntry | null;
   innerRadius: number;
   radius: number;
 };
 
-const pokedexEntry: React.FC<pokedexEntry> = ({
+const pokedexEntry: React.FC<pokedexEntryProps> = ({
   data,
   innerRadius,
   radius,
 }) => {
   const length = Math.sqrt(2 * Math.pow(innerRadius / 2, 2));
+  console.log(data);
   if (data === null)
     return (
       <div
@@ -63,6 +64,7 @@ const pokedexEntry: React.FC<pokedexEntry> = ({
         <img
           className="ui centered huge image"
           src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${data.pokedex_number}.png`}
+          alt={"no pokemon found"}
         />
         <div
           className="ui basic segment"
