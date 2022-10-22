@@ -10,11 +10,11 @@ const TreeVis: React.FC<VisProps> = ({ data }) => {
     useState<HierarchyNode<rawDataEntry> | null>(null);
 
   const svgRef = useRef<SVGSVGElement | null>(null);
-  let width = window.innerWidth; // outer width, in pixels
+  let width = window.innerWidth; // // outer width, in pixels
   let height = window.innerHeight; // outer height, in pixels
   let radius = Math.min(width, height) / 2;
   let donutThickness = 25;
-  let innerRadius = radius / 2.8; // inner radius of pie, in pixels (non-zero for donut)
+  let innerRadius = radius / 2.4; // inner radius of pie, in pixels (non-zero for donut)
   let outerRadius = innerRadius + donutThickness; // outer radius of pie, in pixels
   let innerRadius2 = radius / 1.3;
   let outerRadius2 = innerRadius2 + donutThickness; // outer radius of pie, in pixels
@@ -42,6 +42,12 @@ const TreeVis: React.FC<VisProps> = ({ data }) => {
           // @ts-ignore
           .sort((a, b) => a.value - b.value)
       );
+
+    const attackAccessor = (d: rawDataEntry) => parseInt(d.attack);
+    const defenseAccessor = (d: rawDataEntry) => parseInt(d.defense);
+    const spAttackAccessor = (d: rawDataEntry) => parseInt(d.sp_attack);
+    const spDefenseAccessor = (d: rawDataEntry) => parseInt(d.sp_defense);
+    const speedAccessor = (d: rawDataEntry) => parseInt(d.speed);
 
     let dataObject: any = {};
 
@@ -134,13 +140,6 @@ const TreeVis: React.FC<VisProps> = ({ data }) => {
           .append("stop")
           // @ts-ignore
           .attr("stop-color", (d) =>
-            // d3.interpolateRgb(
-            //   // @ts-ignore
-            //   colourTypeScale[type],
-            //   // @ts-ignore
-            //   colourTypeScale[pokemonTypes[i]]
-            // )(d)
-
             d3.interpolateRgb(
               // @ts-ignore
               colourTypeScale[pokemonTypes[i]],
@@ -188,11 +187,10 @@ const TreeVis: React.FC<VisProps> = ({ data }) => {
           return colourTypeScale[d.source.data.name];
         }
       })
-      .style("stroke-opacity", strokeOpacity)
+      .attr("stroke-opacity", strokeOpacity)
       .attr("stroke-linecap", true)
       .attr("stroke-linejoin", true)
       .attr("stroke-width", strokeWidth)
-
       .attr(
         "d",
         // @ts-ignore
@@ -221,7 +219,8 @@ const TreeVis: React.FC<VisProps> = ({ data }) => {
       .attr("d", arc)
       // @ts-ignore
       .on("mouseenter", function (e, datum: HierarchyNode<rawDataEntry>) {
-        console.log(datum);
+        d3.selectAll("#treePath").attr("stroke-opacity", 0.15);
+
         svg
           .selectAll("#donutArc")
           // @ts-ignore
@@ -243,9 +242,6 @@ const TreeVis: React.FC<VisProps> = ({ data }) => {
             }
           })
           .style("opacity", 0.25);
-
-        d3.selectAll("#treePath").style("stroke-opacity", 0.25);
-
         d3.select(this).style("opacity", 1);
       })
       .on("mouseleave", function () {
@@ -280,9 +276,6 @@ const TreeVis: React.FC<VisProps> = ({ data }) => {
         .style("font-size", (d: HierarchyNode<any>) =>
           d.data?.name === hoveredPokemonData?.data.name ? "15px" : "5px"
         )
-        .attr("z-index", (d: HierarchyNode<any>) =>
-          d.data?.name === hoveredPokemonData?.data.name ? 999 : 1
-        )
         .text((d, i) => (d.depth < 3 ? "" : L[i]));
 
     node
@@ -297,14 +290,12 @@ const TreeVis: React.FC<VisProps> = ({ data }) => {
       )
       .attr("class", "pokemonCircle")
       .attr("r", (d) => (d.children ? 0 : r))
-      .style("z-index", 999)
       .on("mouseenter", function (e, datum: HierarchyNode<any>) {
         if (datum.depth !== 3) return;
         setHoveredPokemonData(datum as HierarchyNode<rawDataEntry>);
         d3.select(this).attr("r", 5);
       })
       .on("mouseleave", function () {
-        console.log("leaving");
         setHoveredPokemonData(null);
         d3.select(this).attr("r", r);
       });
@@ -316,6 +307,86 @@ const TreeVis: React.FC<VisProps> = ({ data }) => {
       .attr("cx", 0)
       .attr("r", innerRadius)
       .attr("fill", "white");
+
+    //draw the stats for the pokemon stats
+    let maxStats: number[] = [
+      d3.max(data, attackAccessor) as number,
+      d3.max(data, defenseAccessor) as number,
+      d3.max(data, spAttackAccessor) as number,
+      d3.max(data, spDefenseAccessor) as number,
+      d3.max(data, speedAccessor) as number,
+    ];
+
+    let statLabels = ["attack", "defense", "sp attack", "sp defense", "speed"];
+
+    if (hoveredPokemonData !== null) {
+      let pokemonStats = [
+        attackAccessor(hoveredPokemonData?.data),
+        defenseAccessor(hoveredPokemonData?.data),
+        spAttackAccessor(hoveredPokemonData?.data),
+        spDefenseAccessor(hoveredPokemonData?.data),
+        speedAccessor(hoveredPokemonData?.data),
+      ];
+
+      pokemonStats.forEach((stat, i) => {
+        //let angle = (stat / maxStats[i]) * 2 * Math.PI;
+        let statThickness = 17;
+        let outerRad = innerRadius - 10 - statThickness * i;
+        let statArc = d3
+          .arc()
+          .innerRadius(outerRad - statThickness)
+          .outerRadius(outerRad)
+          .startAngle(0)
+          .cornerRadius(5)
+          .padAngle(0)
+          .padRadius(0)
+          .endAngle((-stat / maxStats[i]) * 2 * Math.PI);
+
+        let shade = 120 + (i / 5) * 100;
+        console.log(statArc);
+        // drawing it !
+        svg
+          .append("path")
+          // @ts-ignore
+          .attr("d", statArc)
+          .attr("fill", "none")
+          .attr("stroke-width", "1")
+          .attr("stroke", "black")
+          .attr("fill", `rgb(${shade}, ${shade}, ${shade})`);
+
+        // svg
+        //   .append("text")
+        //   .text(stat)
+        //   .attr("x", outerRad * Math.cos(angle - 0.11))
+        //   .attr("y", outerRad * Math.sin(angle - 0.1))
+        //   .style("font-size", 12)
+        //   .style("fill", "black");
+        // .attr("stroke-width", haloWidth);
+
+        svg
+          .append("text")
+          .text(statLabels[i])
+          .attr("x", 5)
+          .attr("y", -outerRad + statThickness / 2 + 3)
+          .attr("fill", "black")
+          .style("font-size", 12)
+          .attr("stroke-width", haloWidth);
+      });
+
+      //   maxStats.forEach((stat, i) => {
+      //     let angle = (pokemonStats[i] / stat) * 2 * Math.PI;
+      //     let outerRad = innerRadius - 10 - 17 * i;
+      //   //   svg
+      //   //     .append("text")
+      //   //     .text(stat)
+      //   //     .attr("x", outerRad * Math.cos(angle))
+      //   //     .attr("y", outerRad * Math.sin(angle))
+      //   //     .attr("stroke", "red")
+      //   //     .style("font-size", 15)
+      //   //     .style("fill", "black");
+      //   // });
+    }
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hoveredPokemonData]);
 
@@ -334,7 +405,7 @@ const TreeVis: React.FC<VisProps> = ({ data }) => {
             : (hoveredPokemonData?.data as rawDataEntry)
         }
         innerRadius={innerRadius}
-        radius={radius}
+        // radius={radius}
       />
     </React.Fragment>
   );
