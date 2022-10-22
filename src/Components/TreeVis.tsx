@@ -187,7 +187,7 @@ const TreeVis: React.FC<VisProps> = ({ data }) => {
           return colourTypeScale[d.source.data.name];
         }
       })
-      .attr("stroke-opacity", strokeOpacity)
+      .style("stroke-opacity", strokeOpacity)
       .attr("stroke-linecap", true)
       .attr("stroke-linejoin", true)
       .attr("stroke-width", strokeWidth)
@@ -219,7 +219,7 @@ const TreeVis: React.FC<VisProps> = ({ data }) => {
       .attr("d", arc)
       // @ts-ignore
       .on("mouseenter", function (e, datum: HierarchyNode<rawDataEntry>) {
-        d3.selectAll("#treePath").attr("stroke-opacity", 0.15);
+        d3.selectAll("#treePath").style("stroke-opacity", 0.05);
 
         svg
           .selectAll("#donutArc")
@@ -241,7 +241,7 @@ const TreeVis: React.FC<VisProps> = ({ data }) => {
               return d;
             }
           })
-          .style("opacity", 0.25);
+          .style("opacity", 0.05);
         d3.select(this).style("opacity", 1);
       })
       .on("mouseleave", function () {
@@ -280,7 +280,9 @@ const TreeVis: React.FC<VisProps> = ({ data }) => {
 
     node
       .append("circle")
-      .attr("fill", stroke)
+      .attr("fill", (d: HierarchyNode<any>) =>
+        d.data.is_legendary > 0 ? "gold" : stroke
+      )
       // @ts-ignore
       .attr(
         "id",
@@ -352,7 +354,8 @@ const TreeVis: React.FC<VisProps> = ({ data }) => {
           .attr("fill", "none")
           .attr("stroke-width", "1")
           .attr("stroke", "black")
-          .attr("fill", `rgb(${shade}, ${shade}, ${shade})`);
+          .attr("fill", `rgb(${shade}, ${shade}, ${shade})`)
+          .style("opacity", 0.6);
 
         // svg
         //   .append("text")
