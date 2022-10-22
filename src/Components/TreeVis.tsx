@@ -222,6 +222,25 @@ const TreeVis: React.FC<VisProps> = ({ data }) => {
         d3.selectAll("#treePath").style("stroke-opacity", 0.05);
 
         svg
+          .selectAll("#pokeball")
+          // @ts-ignore
+          .filter((d: any) => {
+            console.log(d);
+            console.log(datum);
+            if (datum.depth === 1) {
+              return d.data.type1 !== datum.data.name;
+            } else if (datum.depth === 2) {
+              return (
+                (d.data.type2 !== "" ? d.data.type2 : d.data.type1) !==
+                datum.data.name
+                //&& d.data.type1 === datum.parent?.data.name
+                //d.parent.data.name !== datum.parent?.data.name
+              );
+            }
+          })
+          .style("opacity", 0.05);
+
+        svg
           .selectAll("#donutArc")
           // @ts-ignore
           .filter((d: any) => {
@@ -247,6 +266,8 @@ const TreeVis: React.FC<VisProps> = ({ data }) => {
       .on("mouseleave", function () {
         svg.selectAll("#donutArc").style("opacity", 1);
         d3.selectAll("#treePath").style("stroke-opacity", strokeOpacity);
+
+        svg.selectAll("#pokeball").style("opacity", 1);
       });
 
     const node = svg
@@ -284,12 +305,7 @@ const TreeVis: React.FC<VisProps> = ({ data }) => {
         d.data.is_legendary > 0 ? "gold" : stroke
       )
       // @ts-ignore
-      .attr(
-        "id",
-        (d) =>
-          // @ts-ignore
-          `${d.data.pokedex_number}-${d.data.name}`
-      )
+      .attr("id", "pokeball")
       .attr("class", "pokemonCircle")
       .attr("r", (d) => (d.children ? 0 : r))
       .on("mouseenter", function (e, datum: HierarchyNode<any>) {
