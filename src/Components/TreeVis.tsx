@@ -13,10 +13,10 @@ const TreeVis: React.FC<VisProps> = ({ data }) => {
   let width = window.innerWidth; // // outer width, in pixels
   let height = window.innerHeight; // outer height, in pixels
   let radius = Math.min(width, height) / 2;
-  let donutThickness = 25;
-  let innerRadius = radius / 2.4; // inner radius of pie, in pixels (non-zero for donut)
+  let donutThickness = 15;
+  let innerRadius = radius / 1.8; // inner radius of pie, in pixels (non-zero for donut)
   let outerRadius = innerRadius + donutThickness; // outer radius of pie, in pixels
-  let innerRadius2 = radius / 1.3;
+  let innerRadius2 = radius / 1.2;
   let outerRadius2 = innerRadius2 + donutThickness; // outer radius of pie, in pixels
 
   const r = 2; // radius of nodes
@@ -225,16 +225,12 @@ const TreeVis: React.FC<VisProps> = ({ data }) => {
           .selectAll("#pokeball")
           // @ts-ignore
           .filter((d: any) => {
-            console.log(d);
-            console.log(datum);
             if (datum.depth === 1) {
               return d.data.type1 !== datum.data.name;
             } else {
               return (
                 (d.data.type2 !== "" ? d.data.type2 : d.data.type1) !==
                 datum.data.name
-                //&& d.data.type1 === datum.parent?.data.name
-                //d.parent.data.name !== datum.parent?.data.name
               );
             }
           })
@@ -361,7 +357,6 @@ const TreeVis: React.FC<VisProps> = ({ data }) => {
           .endAngle((-stat / maxStats[i]) * 2 * Math.PI);
 
         let shade = 120 + (i / 5) * 100;
-        console.log(statArc);
         // drawing it !
         svg
           .append("path")
