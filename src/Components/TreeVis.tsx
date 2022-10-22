@@ -229,7 +229,7 @@ const TreeVis: React.FC<VisProps> = ({ data }) => {
             console.log(datum);
             if (datum.depth === 1) {
               return d.data.type1 !== datum.data.name;
-            } else if (datum.depth === 2) {
+            } else {
               return (
                 (d.data.type2 !== "" ? d.data.type2 : d.data.type1) !==
                 datum.data.name
