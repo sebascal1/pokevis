@@ -2,7 +2,7 @@ import React from "react";
 import { capitalize } from "../Utils";
 import { rawDataEntry } from "../Utils/types";
 import bugType from "../Icons/bug_type.png";
-import darkType from "../Icons/bug_type.png";
+import darkType from "../Icons/dark_type.png";
 import dragonType from "../Icons/dragon_type.png";
 import electricType from "../Icons/electric_type.png";
 import fairyType from "../Icons/fairy_type.png";

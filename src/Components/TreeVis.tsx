@@ -54,6 +54,7 @@ const TreeVis: React.FC<VisProps> = ({ data }) => {
     //parse the data in an object that can then be fed into the d3 tree hierarchy
     for (let i = 0; i < data.length; i++) {
       let entry: any = data[i];
+      if (entry.pokedex_number > 252) continue;
       entry.value = 1;
       if (dataObject[entry.type1] === undefined)
         dataObject[entry.type1] = { name: entry.type1, children: [] };
@@ -184,7 +185,7 @@ const TreeVis: React.FC<VisProps> = ({ data }) => {
           })`;
         else {
           // @ts-ignore
-          return colourTypeScale[d.source.data.name];
+          return "none";
         }
       })
       .style("stroke-opacity", strokeOpacity)
@@ -219,7 +220,22 @@ const TreeVis: React.FC<VisProps> = ({ data }) => {
       .attr("d", arc)
       // @ts-ignore
       .on("mouseenter", function (e, datum: HierarchyNode<rawDataEntry>) {
-        d3.selectAll("#treePath").style("stroke-opacity", 0.05);
+        d3.selectAll("#treePath")
+          .filter((d: any) => {
+            if (datum.depth === 1) {
+              return (
+                d.source.depth === 2 &&
+                d.source.parent.data.name !== datum.data.name
+              );
+            } else {
+              return (
+                (d.source.depth === 2 &&
+                  d.source.parent.data.name !== datum.parent?.data.name) ||
+                d.source.data.name !== datum.data.name
+              );
+            }
+          })
+          .style("stroke-opacity", 0.05);
 
         svg
           .selectAll("#pokeball")
@@ -228,9 +244,24 @@ const TreeVis: React.FC<VisProps> = ({ data }) => {
             if (datum.depth === 1) {
               return d.data.type1 !== datum.data.name;
             } else {
+              console.log(d);
+              if (d.depth === 3) {
+                console.log(
+                  `inner circle comparison ${datum.parent?.data.name} and ${d.parent.parent.data.name}`
+                );
+                console.log(
+                  `outer circle comparison ${datum.data.name} and ${d.parent.data.name}`
+                );
+              }
+
               return (
                 (d.data.type2 !== "" ? d.data.type2 : d.data.type1) !==
-                datum.data.name
+                  datum.data.name ||
+                !(
+                  d.depth === 3 &&
+                  datum.data.name === d.parent.data.name &&
+                  datum.parent?.data.name === d.parent.parent.data.name
+                )
               );
             }
           })
@@ -262,7 +293,6 @@ const TreeVis: React.FC<VisProps> = ({ data }) => {
       .on("mouseleave", function () {
         svg.selectAll("#donutArc").style("opacity", 1);
         d3.selectAll("#treePath").style("stroke-opacity", strokeOpacity);
-
         svg.selectAll("#pokeball").style("opacity", 1);
       });
 
@@ -305,9 +335,32 @@ const TreeVis: React.FC<VisProps> = ({ data }) => {
       .attr("class", "pokemonCircle")
       .attr("r", (d) => (d.children ? 0 : r))
       .on("mouseenter", function (e, datum: HierarchyNode<any>) {
+        //make sure the events only occur for the pokemon circles (the leaves)
         if (datum.depth !== 3) return;
         setHoveredPokemonData(datum as HierarchyNode<rawDataEntry>);
         d3.select(this).attr("r", 5);
+
+        svg
+          .selectAll("#treePath")
+          .filter((d: any) => {
+            return d.target.data.name !== datum.data.name;
+          })
+          .style("opacity", 0.05);
+
+        svg
+          .selectAll("#donutArc")
+          .filter((d: any) => {
+            return (
+              (d.depth === 1 &&
+                d.data.name !== datum.parent?.parent?.data.name) ||
+              (d.depth === 2 &&
+                !(
+                  d.data.name === datum.parent?.data.name &&
+                  d.parent.data.name === datum.parent?.parent?.data.name
+                ))
+            );
+          })
+          .style("opacity", 0.05);
       })
       .on("mouseleave", function () {
         setHoveredPokemonData(null);
