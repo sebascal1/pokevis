@@ -29,7 +29,7 @@ const TreeVis: React.FC<VisProps> = ({ data }) => {
 
   //root for the tree graph
   useEffect(() => {
-    const numberOfGradientStops = 3;
+    const numberOfGradientStops = 2;
     const stops = d3
       .range(numberOfGradientStops)
       .map((i) => i / (numberOfGradientStops - 1));
@@ -140,15 +140,15 @@ const TreeVis: React.FC<VisProps> = ({ data }) => {
           .enter()
           .append("stop")
           // @ts-ignore
-          .attr("stop-color", (d) =>
-            d3.interpolateRgb(
+          .attr("stop-color", (d) => {
+            return d3.interpolateRgb(
               // @ts-ignore
               colourTypeScale[pokemonTypes[i]],
               // @ts-ignore
               colourTypeScale[type]
-            )(d)
-          )
-          .attr("offset", (d) => `${d < 0.5 ? 20 : d * 100}%`);
+            )(d);
+          })
+          .attr("offset", (d) => `${d * 100}%`);
       }
     });
 
@@ -171,19 +171,31 @@ const TreeVis: React.FC<VisProps> = ({ data }) => {
       .join("path")
       .attr("id", "treePath")
       .attr("fill", "none")
-      .attr("stroke", (d) => {
+      .attr("stroke", (d: any) => {
+        if (d.target.depth === 3) console.log(d);
         // @ts-ignore
-        if (d.target.depth > 2)
+        if (d.target.depth > 2) {
+          let type1;
+          let type2;
+          //need to determine what part of the semi circle the node is at in order to select the correct colour gradient
+          //for the path
+          if (d.target.x < Math.PI) {
+            type1 =
+              d.target.data.type2 === ""
+                ? d.target.data.type1
+                : d.target.data.type2;
+            type2 = d.source.parent.data.name;
+          } else {
+            type2 =
+              d.target.data.type2 === ""
+                ? d.target.data.type1
+                : d.target.data.type2;
+            type1 = d.source.parent.data.name;
+          }
+
           // @ts-ignore
-          return `url(#${d.source.parent.data.name}-${
-            // @ts-ignore
-            d.target.data.type2 === ""
-              ? // @ts-ignore
-                d.target.data.type1
-              : // @ts-ignore
-                d.target.data.type2
-          })`;
-        else {
+          return `url(#${type1}-${type2})`;
+        } else {
           // @ts-ignore
           return "none";
         }
@@ -244,16 +256,6 @@ const TreeVis: React.FC<VisProps> = ({ data }) => {
             if (datum.depth === 1) {
               return d.data.type1 !== datum.data.name;
             } else {
-              console.log(d);
-              if (d.depth === 3) {
-                console.log(
-                  `inner circle comparison ${datum.parent?.data.name} and ${d.parent.parent.data.name}`
-                );
-                console.log(
-                  `outer circle comparison ${datum.data.name} and ${d.parent.data.name}`
-                );
-              }
-
               return (
                 (d.data.type2 !== "" ? d.data.type2 : d.data.type1) !==
                   datum.data.name ||
@@ -323,12 +325,13 @@ const TreeVis: React.FC<VisProps> = ({ data }) => {
         .style("font-size", (d: HierarchyNode<any>) =>
           d.data?.name === hoveredPokemonData?.data.name ? "15px" : "5px"
         )
-        .text((d, i) => (d.depth < 3 ? "" : L[i]));
+        .text((d, i) => (d.depth < 3 ? "" : L[i]))
+        .style("background", "#def1f1");
 
     node
       .append("circle")
       .attr("fill", (d: HierarchyNode<any>) =>
-        d.data.is_legendary > 0 ? "gold" : stroke
+        d.data.is_legendary > 0 ? "#e29f12" : stroke
       )
       // @ts-ignore
       .attr("id", "pokeball")
@@ -373,7 +376,7 @@ const TreeVis: React.FC<VisProps> = ({ data }) => {
       .attr("cy", 0)
       .attr("cx", 0)
       .attr("r", innerRadius)
-      .attr("fill", "white");
+      .attr("fill", "#def1f1");
 
     //draw the stats for the pokemon stats
     let maxStats: number[] = [
@@ -407,7 +410,7 @@ const TreeVis: React.FC<VisProps> = ({ data }) => {
           .cornerRadius(5)
           .padAngle(0)
           .padRadius(0)
-          .endAngle((-stat / maxStats[i]) * 2 * Math.PI);
+          .endAngle((-stat / maxStats[i]) * 2 * Math.PI * 0.94);
 
         let shade = 120 + (i / 5) * 100;
         // drawing it !
@@ -463,7 +466,7 @@ const TreeVis: React.FC<VisProps> = ({ data }) => {
         ref={svgRef}
         width={width}
         height={height}
-        style={{ position: "absolute" }}
+        style={{ position: "absolute", background: "#def1f1" }}
       />
       <PokedexEntry
         data={
