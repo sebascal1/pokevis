@@ -15,11 +15,11 @@ const TreeVis: React.FC<VisProps> = ({ data }) => {
   const svgRef = useRef<SVGSVGElement | null>(null);
   const width =
     window.innerWidth < 700 ? window.innerWidth : 0.5 * window.innerWidth; // // outer width, in pixels
-  let radius = width / 2;
-  let donutThickness = 15;
-  let innerRadius = radius / 1.8; // inner radius of pie, in pixels (non-zero for donut)
+  let radius = width / 2.5;
+  let donutThickness = 10;
+  let innerRadius = radius / 2; // inner radius of pie, in pixels (non-zero for donut)
   let outerRadius = innerRadius + donutThickness; // outer radius of pie, in pixels
-  let innerRadius2 = radius / 1.2;
+  let innerRadius2 = radius / 1.4;
   let outerRadius2 = innerRadius2 + donutThickness; // outer radius of pie, in pixels
   const mobileView = window.innerWidth < 700;
 
@@ -34,11 +34,13 @@ const TreeVis: React.FC<VisProps> = ({ data }) => {
 
   //root for the tree graph
   useEffect(() => {
+    //number of colour stops to use to create the line gradents for the flow lines
     const numberOfGradientStops = 2;
     const stops = d3
       .range(numberOfGradientStops)
       .map((i) => i / (numberOfGradientStops - 1));
 
+    //set up the size for the circular tree graph
     const partition = (data: any) =>
       d3.partition().size([2 * Math.PI, radius * radius])(
         d3
@@ -48,12 +50,14 @@ const TreeVis: React.FC<VisProps> = ({ data }) => {
           .sort((a, b) => a.value - b.value)
       );
 
+    //accessors to access the data in the file
     const attackAccessor = (d: rawDataEntry) => parseInt(d.attack);
     const defenseAccessor = (d: rawDataEntry) => parseInt(d.defense);
     const spAttackAccessor = (d: rawDataEntry) => parseInt(d.sp_attack);
     const spDefenseAccessor = (d: rawDataEntry) => parseInt(d.sp_defense);
     const speedAccessor = (d: rawDataEntry) => parseInt(d.speed);
 
+    //create an initial data object to store the data
     let dataObject: any = {};
 
     //parse the data in an object that can then be fed into the d3 tree hierarchy
@@ -89,6 +93,7 @@ const TreeVis: React.FC<VisProps> = ({ data }) => {
     //make a data object with a parent root node to which it's children are the previously generated data
     let dataObj = { name: "root", children: dataArr };
 
+    //create the root object for the tree data
     const root = partition(dataObj);
 
     // Compute labels and titles.
@@ -96,7 +101,7 @@ const TreeVis: React.FC<VisProps> = ({ data }) => {
     // @ts-ignore
     const L: string[] = descendants.map((d) => d.data?.name) as string[];
 
-    //Arc graphs
+    //create the Arcs for the inner and outer circles in order to group pokemon of similar types together
     const arc = d3
       .arc()
       // @ts-ignore
