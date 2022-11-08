@@ -62,7 +62,7 @@ html, body, #root, .App {
   }
 
   .main{
-    flex-direction: column;
+    flex-direction: column-reverse;
   }
 
 }
