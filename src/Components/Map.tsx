@@ -12,18 +12,6 @@ const Map = () => {
   // @ts-ignore
   const selectedPokemon = useSelector((state) => state.selectedPokemon);
   const [locations, setLocation] = useState<any[]>([]);
-
-  console.log(`selected pokemons is ${selectedPokemon}`);
-
-  const allowedGames = [
-    "red",
-    "blue",
-    "green",
-    "firered",
-    "leafgreen",
-    "yellow",
-  ];
-
   const getRoutes = (entry: string) => {
     if (entry.includes("sea")) {
       return entry.split("-")[3];
@@ -34,7 +22,14 @@ const Map = () => {
 
   useEffect(() => {
     if (selectedPokemon === null) return;
-
+    const allowedGames = [
+      "red",
+      "blue",
+      "green",
+      "firered",
+      "leafgreen",
+      "yellow",
+    ];
     const getData = async () => {
       let locs = await axios.get(
         `https://pokeapi.co/api/v2/pokemon/${selectedPokemon.toLowerCase()}/encounters`
