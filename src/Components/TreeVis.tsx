@@ -13,14 +13,16 @@ const TreeVis: React.FC<VisProps> = ({ data }) => {
     useState<HierarchyNode<rawDataEntry> | null>(null);
 
   const svgRef = useRef<SVGSVGElement | null>(null);
-  let width = window.innerWidth / 2; // // outer width, in pixels
+  const width =
+    window.innerWidth < 700 ? window.innerWidth : 0.5 * window.innerWidth; // // outer width, in pixels
   let height = window.innerHeight; // outer height, in pixels
-  let radius = Math.min(width, height) / 2;
+  let radius = width / 2;
   let donutThickness = 15;
   let innerRadius = radius / 1.8; // inner radius of pie, in pixels (non-zero for donut)
   let outerRadius = innerRadius + donutThickness; // outer radius of pie, in pixels
   let innerRadius2 = radius / 1.2;
   let outerRadius2 = innerRadius2 + donutThickness; // outer radius of pie, in pixels
+  const mobileView = window.innerWidth < 700;
 
   const r = 2; // radius of nodes
   // @ts-ignore
@@ -529,7 +531,13 @@ const TreeVis: React.FC<VisProps> = ({ data }) => {
   }, [hoveredPokemonData]);
 
   return (
-    <section style={{ display: "inline-block", width: "50%" }}>
+    <section
+      style={{
+        display: "inline-block",
+        position: "relative",
+        width: `${mobileView ? "100%" : "50%"}`,
+      }}
+    >
       <svg
         ref={svgRef}
         width={width}

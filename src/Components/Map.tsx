@@ -7,7 +7,8 @@ import "./map.css";
 
 const Map = () => {
   const containerRef = useRef<HTMLDivElement | null>(null);
-  const imageWidth = 0.5 * window.innerWidth;
+  const imageWidth =
+    window.innerWidth < 700 ? window.innerWidth : 0.5 * window.innerWidth;
   const imageHeight = imageWidth * 0.6;
   // @ts-ignore
   const selectedPokemon = useSelector((state) => state.selectedPokemon);

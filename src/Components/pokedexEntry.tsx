@@ -32,6 +32,7 @@ const pokedexEntry: React.FC<pokedexEntryProps> = ({
   //radius,
 }) => {
   const length = Math.sqrt(2 * Math.pow(innerRadius / 2, 2));
+  const mobileView = window.innerWidth < 700;
 
   const typeDict = {
     bug: bugType,
@@ -125,17 +126,15 @@ const pokedexEntry: React.FC<pokedexEntryProps> = ({
 
   return (
     <div
-      className={"ui basic segment"}
+      className={"pokedex"}
       style={{
         position: "absolute",
         height: length,
         width: length,
-        // left: `${(window.innerWidth - length) / 2 + 5}px`,
-        // top: `${window.innerHeight / 2 - length - 70}px`,
-        left: "70%",
-        top: `${30}%`,
         border: "none",
-        padding: "0",
+        marginLeft: `-${length / 2}px`,
+        top: `${mobileView ? "30%" : "22%"}`,
+        left: "50%",
         background: "transparent",
       }}
     >

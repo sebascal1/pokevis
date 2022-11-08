@@ -20,14 +20,16 @@ function App() {
   }, []);
   return (
     <React.Fragment>
-      <header style={{ display: "flex", justifyContent: "center" }}>
-        <h1>Welcome to Kanto</h1>
-      </header>
-      <main className="App">
-        <Map />
-        {data !== null && <TreeVis data={data as rawDataEntry[]} />}
-      </main>
-      <footer></footer>
+      <article className="App">
+        <header style={{ display: "flex", justifyContent: "center" }}>
+          <h1>Welcome to Kanto</h1>
+        </header>
+        <main className="main">
+          <Map />
+          {data !== null && <TreeVis data={data as rawDataEntry[]} />}
+        </main>
+        <footer></footer>
+      </article>
     </React.Fragment>
   );
 }
