@@ -55,26 +55,7 @@ const pokedexEntry: React.FC<pokedexEntryProps> = ({
     water: waterType,
   };
 
-  if (data === null)
-    return (
-      <div
-        className={"ui basic segment"}
-        style={{
-          position: "absolute",
-          height: length,
-          width: length,
-          left: "70%",
-          top: `${45}%`,
-          border: "none",
-          padding: "0",
-          background: "transparent",
-        }}
-      >
-        <h2 className="ui centered header">
-          {"Hover over a Pokemon for more Information"}
-        </h2>
-      </div>
-    );
+  if (data === null) return <div></div>;
 
   const renderTypeImages = (type1: string, type2: string) => {
     if (type2 === "" || type2 === type1) {

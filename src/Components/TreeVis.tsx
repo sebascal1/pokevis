@@ -15,7 +15,6 @@ const TreeVis: React.FC<VisProps> = ({ data }) => {
   const svgRef = useRef<SVGSVGElement | null>(null);
   const width =
     window.innerWidth < 700 ? window.innerWidth : 0.5 * window.innerWidth; // // outer width, in pixels
-  let height = window.innerHeight; // outer height, in pixels
   let radius = width / 2;
   let donutThickness = 15;
   let innerRadius = radius / 1.8; // inner radius of pie, in pixels (non-zero for donut)
@@ -541,7 +540,7 @@ const TreeVis: React.FC<VisProps> = ({ data }) => {
       <svg
         ref={svgRef}
         width={width}
-        height={height}
+        height={width}
         style={{
           background: "#def1f1",
           padding: "15px auto",
