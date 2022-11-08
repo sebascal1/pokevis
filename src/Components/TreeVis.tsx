@@ -411,7 +411,7 @@ const TreeVis: React.FC<VisProps> = ({ data }) => {
 
     let statScale = d3.scaleLinear().domain([0, 255]).range([0, scaleLength]);
 
-    if (hoveredPokemonData !== null) {
+    if (hoveredPokemonData !== null && !mobileView) {
       let pokemonStats = [
         attackAccessor(hoveredPokemonData?.data),
         defenseAccessor(hoveredPokemonData?.data),
