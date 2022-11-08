@@ -1,16 +1,19 @@
 import * as d3 from "d3";
 import React, { useEffect, useRef, useState } from "react";
+import { useDispatch } from "react-redux";
+
 import { rawDataEntry, VisProps } from "../Utils/types";
 import { colourTypeScale, pokemonTypes } from "../Utils";
 import PokedexEntry from "./pokedexEntry";
 import { HierarchyNode } from "d3";
+import { selectPokemon } from "../Actions";
 
 const TreeVis: React.FC<VisProps> = ({ data }) => {
   const [hoveredPokemonData, setHoveredPokemonData] =
     useState<HierarchyNode<rawDataEntry> | null>(null);
 
   const svgRef = useRef<SVGSVGElement | null>(null);
-  let width = window.innerWidth; // // outer width, in pixels
+  let width = window.innerWidth / 2; // // outer width, in pixels
   let height = window.innerHeight; // outer height, in pixels
   let radius = Math.min(width, height) / 2;
   let donutThickness = 15;
@@ -26,6 +29,7 @@ const TreeVis: React.FC<VisProps> = ({ data }) => {
   const strokeOpacity = 0.4; // stroke opacity for linkss
   const halo = "#fff"; // color of label halo
   const haloWidth = 3; // padding around the labels
+  const dispatch = useDispatch();
 
   //root for the tree graph
   useEffect(() => {
@@ -54,7 +58,7 @@ const TreeVis: React.FC<VisProps> = ({ data }) => {
     //parse the data in an object that can then be fed into the d3 tree hierarchy
     for (let i = 0; i < data.length; i++) {
       let entry: any = data[i];
-      if (entry.pokedex_number > 252) continue;
+      if (entry.pokedex_number > 151) continue;
       entry.value = 1;
       if (dataObject[entry.type1] === undefined)
         dataObject[entry.type1] = { name: entry.type1, children: [] };
@@ -172,7 +176,6 @@ const TreeVis: React.FC<VisProps> = ({ data }) => {
       .attr("id", "treePath")
       .attr("fill", "none")
       .attr("stroke", (d: any) => {
-        if (d.target.depth === 3) console.log(d);
         // @ts-ignore
         if (d.target.depth > 2) {
           let type1;
@@ -341,6 +344,7 @@ const TreeVis: React.FC<VisProps> = ({ data }) => {
         //make sure the events only occur for the pokemon circles (the leaves)
         if (datum.depth !== 3) return;
         setHoveredPokemonData(datum as HierarchyNode<rawDataEntry>);
+        dispatch(selectPokemon(datum.data.name));
         d3.select(this).attr("r", 5);
 
         svg
@@ -365,8 +369,8 @@ const TreeVis: React.FC<VisProps> = ({ data }) => {
           })
           .style("opacity", 0.05);
       })
-      .on("mouseleave", function () {
-        setHoveredPokemonData(null);
+      .on("mouseout", function () {
+        dispatch(selectPokemon(null));
         d3.select(this).attr("r", r);
       });
 
@@ -378,16 +382,33 @@ const TreeVis: React.FC<VisProps> = ({ data }) => {
       .attr("r", innerRadius)
       .attr("fill", "#def1f1");
 
-    //draw the stats for the pokemon stats
-    let maxStats: number[] = [
-      d3.max(data, attackAccessor) as number,
-      d3.max(data, defenseAccessor) as number,
-      d3.max(data, spAttackAccessor) as number,
-      d3.max(data, spDefenseAccessor) as number,
-      d3.max(data, speedAccessor) as number,
+    let statAccessors = [
+      attackAccessor,
+      defenseAccessor,
+      spAttackAccessor,
+      spDefenseAccessor,
+      speedAccessor,
     ];
 
+    let statsArr: any = [];
+
     let statLabels = ["attack", "defense", "sp attack", "sp defense", "speed"];
+
+    statLabels.forEach((stat, i) => {
+      let statObject: any = { name: stat };
+
+      statObject.max = d3.max(data, statAccessors[i]) as number;
+      statObject.min = d3.min(data, statAccessors[i]) as number;
+      statObject.mean = d3.mean(data, statAccessors[i]) as number;
+      statObject.lq = d3.quantile(data, 0.25, statAccessors[i]) as number;
+      statObject.uq = d3.quantile(data, 0.75, statAccessors[i]) as number;
+
+      statsArr.push(statObject);
+    });
+
+    let scaleLength = 2 * (innerRadius - 80);
+
+    let statScale = d3.scaleLinear().domain([0, 255]).range([0, scaleLength]);
 
     if (hoveredPokemonData !== null) {
       let pokemonStats = [
@@ -398,75 +419,125 @@ const TreeVis: React.FC<VisProps> = ({ data }) => {
         speedAccessor(hoveredPokemonData?.data),
       ];
 
-      pokemonStats.forEach((stat, i) => {
-        //let angle = (stat / maxStats[i]) * 2 * Math.PI;
-        let statThickness = 10;
-        let outerRad = innerRadius - 10 - statThickness * i;
-        let statArc = d3
-          .arc()
-          .innerRadius(outerRad - statThickness)
-          .outerRadius(outerRad)
-          .startAngle(0)
-          .cornerRadius(5)
-          .padAngle(0)
-          .padRadius(0)
-          .endAngle((-stat / maxStats[i]) * 2 * Math.PI * 0.94);
+      statsArr.forEach((stat: any, i: number) => {
+        let spacing = 30;
+        let boxHeight = 7;
+        let yTranslate = 35;
 
-        let shade = 120 + (i / 5) * 100;
-        // drawing it !
-        svg
-          .append("path")
-          // @ts-ignore
-          .attr("d", statArc)
-          .attr("fill", "none")
-          .attr("stroke-width", "1")
-          .attr("stroke", "black")
-          .attr("fill", `rgb(${shade}, ${shade}, ${shade})`)
-          .style("opacity", 0.6);
+        //scale line
+        let statGroup = svg.append("g");
 
-        // svg
-        //   .append("text")
-        //   .text(stat)
-        //   .attr("x", outerRad * Math.cos(angle - 0.11))
-        //   .attr("y", outerRad * Math.sin(angle - 0.1))
-        //   .style("font-size", 12)
-        //   .style("fill", "black");
-        // .attr("stroke-width", haloWidth);
+        statGroup
+          .append("line")
+          .attr("x1", 0)
+          .attr("x2", scaleLength)
+          .attr("y1", i * spacing)
+          .attr("y2", i * spacing)
+          .style("stroke", "black")
+          .style("fill", "none")
+          .style(
+            "transform",
+            `translate(${-scaleLength / 2}px,${yTranslate}px)`
+          );
 
-        svg
-          .append("text")
-          .text(statLabels[i])
-          .attr("x", 5)
-          .attr("y", -outerRad + statThickness / 2 + 3)
-          .attr("fill", "black")
-          .style("font-size", 10)
-          .attr("stroke-width", haloWidth);
+        //median
+        statGroup
+          .append("line")
+          .attr("x1", statScale(stat.mean))
+          .attr("x2", statScale(stat.mean))
+          .attr("y1", i * spacing)
+          .attr("y2", i * spacing - boxHeight)
+          .style("stroke", "black")
+          .style("fill", "none")
+          .style(
+            "transform",
+            `translate(${-scaleLength / 2}px,${yTranslate}px)`
+          );
+
+        //upper quartile
+        statGroup
+          .append("line")
+          .attr("x1", statScale(stat.uq))
+          .attr("x2", statScale(stat.uq))
+          .attr("y1", i * spacing)
+          .attr("y2", i * spacing - boxHeight)
+          .style("stroke", "black")
+          .style("fill", "none")
+          .style(
+            "transform",
+            `translate(${-scaleLength / 2}px,${yTranslate}px)`
+          );
+
+        //lower quartile
+        statGroup
+          .append("line")
+          .attr("x1", statScale(stat.lq))
+          .attr("x2", statScale(stat.lq))
+          .attr("y1", i * spacing)
+          .attr("y2", i * spacing - boxHeight)
+          .style("stroke", "black")
+          .style("fill", "none")
+          .style(
+            "transform",
+            `translate(${-scaleLength / 2}px,${yTranslate}px)`
+          );
+
+        //min
+        statGroup
+          .append("line")
+          .attr("x1", statScale(stat.min))
+          .attr("x2", statScale(stat.min))
+          .attr("y1", i * spacing)
+          .attr("y2", i * spacing - boxHeight)
+          .style("stroke", "black")
+          .style("fill", "none")
+          .style(
+            "transform",
+            `translate(${-scaleLength / 2}px,${yTranslate}px)`
+          );
+
+        //max
+        statGroup
+          .append("line")
+          .attr("x1", statScale(stat.max))
+          .attr("x2", statScale(stat.max))
+          .attr("y1", i * spacing)
+          .attr("y2", i * spacing - boxHeight)
+          .style("stroke", "black")
+          .style("fill", "none")
+          .style(
+            "transform",
+            `translate(${-scaleLength / 2}px,${yTranslate}px)`
+          );
+
+        //pokemon position
+        statGroup
+          .append("circle")
+          .attr("cx", statScale(pokemonStats[i]))
+          .attr("cy", i * spacing)
+          .attr("r", 2)
+          .style("stroke", "black")
+          .style("fill", "black")
+          .style(
+            "transform",
+            `translate(${-scaleLength / 2}px,${yTranslate}px)`
+          );
       });
-
-      //   maxStats.forEach((stat, i) => {
-      //     let angle = (pokemonStats[i] / stat) * 2 * Math.PI;
-      //     let outerRad = innerRadius - 10 - 17 * i;
-      //   //   svg
-      //   //     .append("text")
-      //   //     .text(stat)
-      //   //     .attr("x", outerRad * Math.cos(angle))
-      //   //     .attr("y", outerRad * Math.sin(angle))
-      //   //     .attr("stroke", "red")
-      //   //     .style("font-size", 15)
-      //   //     .style("fill", "black");
-      //   // });
     }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hoveredPokemonData]);
 
   return (
-    <React.Fragment>
+    <section style={{ display: "inline-block", width: "50%" }}>
       <svg
         ref={svgRef}
         width={width}
         height={height}
-        style={{ position: "absolute", background: "#def1f1" }}
+        style={{
+          background: "#def1f1",
+          padding: "15px auto",
+        }}
       />
       <PokedexEntry
         data={
@@ -477,7 +548,7 @@ const TreeVis: React.FC<VisProps> = ({ data }) => {
         innerRadius={innerRadius}
         // radius={radius}
       />
-    </React.Fragment>
+    </section>
   );
 };
 

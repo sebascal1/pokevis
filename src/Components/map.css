@@ -1,0 +1,104 @@
+.route{
+    background-color: darkred;
+}
+
+#route1{
+    grid-area: 30 / 24 / span 8 /span 3;
+}
+
+#route2{
+    grid-area:  23 / 24 / span 4 /span 3;
+}
+
+#route3{
+    grid-area: 12/31/span 3/ span 15;
+}
+
+#route4{
+    grid-area: 11 / 51 /span 3/ span 12;
+}
+
+#route5{
+    grid-area: 14/ 67 /span 5/ span 3;
+}
+
+#route6{
+    grid-area: 27/ 67 /span 5/ span 3;
+}
+
+#route7{
+    grid-area: 21 / 50 /span 3  / span 11;
+}
+
+#route8{
+    grid-area: 21 / 72 /span 3  / span 14;
+}
+
+#route9{
+    grid-area: 10 / 72 /span 3  / span 15;
+}
+
+#route10{
+    grid-area: 14/ 89/span 3/ span 3;
+}
+
+#route11{
+    grid-area: 33/ 72/span 3/ span 12;
+}
+
+#route12{
+    grid-area: 25/ 89/span 19/ span 3;
+}
+
+#route13{
+    grid-area: 41/ 76/span 3/ span 13;
+}
+
+#route14{
+    grid-area: 44/ 73 /span 4/ span 3;
+}
+
+#route15{
+    grid-area: 45/ 53 /span 3/ span 20;
+}
+
+#route16{
+    grid-area: 21/ 35 /span 3/ span 6;
+}
+
+#route17{
+    grid-area: 24/ 35 /span 21/ span 3;
+}
+
+#route18{
+    grid-area: 45/ 35 /span 3/ span 10;
+}
+
+#route19{
+    grid-area: 49/ 49 /span 6/ span 3;
+}
+
+#route20-1{
+    grid-area: 55/ 42 /span 3/ span 10;
+}
+
+#route20-2{
+    grid-area: 55/ 28 /span 3/ span 8;
+}
+
+#route21{
+    grid-area: 43/ 24 /span 11/ span 3;
+}
+
+#route22{
+    grid-area: 27/ 11 /span 3/ span 14;
+}
+
+#route23{
+    grid-area: 24/ 8 /span 6/ span 3;
+}
+
+#route24{
+    grid-area: 3/ 67 /span 3/ span 17;
+}
+

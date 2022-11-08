@@ -3,6 +3,7 @@ import "./App.css";
 import * as d3 from "d3";
 import { rawDataEntry } from "./Utils/types";
 import TreeVis from "./Components/TreeVis";
+import Map from "./Components/Map";
 
 function App() {
   const [data, setData] = useState<Promise<void> | null | rawDataEntry[]>(null);
@@ -11,7 +12,6 @@ function App() {
   useEffect(() => {
     d3.csv("./pokemon.csv")
       .then((response) => {
-        console.log("getting response");
         setData(response as unknown as rawDataEntry[]);
       })
       .catch((e) => {
@@ -19,9 +19,16 @@ function App() {
       });
   }, []);
   return (
-    <div className="App" style={{ position: "absolute" }}>
-      {data !== null && <TreeVis data={data as rawDataEntry[]} />}
-    </div>
+    <React.Fragment>
+      <header style={{ display: "flex", justifyContent: "center" }}>
+        <h1>Welcome to Kanto</h1>
+      </header>
+      <main className="App">
+        <Map />
+        {data !== null && <TreeVis data={data as rawDataEntry[]} />}
+      </main>
+      <footer></footer>
+    </React.Fragment>
   );
 }
 

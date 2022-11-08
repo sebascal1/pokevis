@@ -32,47 +32,26 @@ const pokedexEntry: React.FC<pokedexEntryProps> = ({
   //radius,
 }) => {
   const length = Math.sqrt(2 * Math.pow(innerRadius / 2, 2));
-  const getPicture = (type: string) => {
-    switch (type) {
-      case "bug":
-        return bugType;
-      case "dark":
-        return darkType;
-      case "dragon":
-        return dragonType;
-      case "electric":
-        return electricType;
-      case "fairy":
-        return fairyType;
-      case "fighting":
-        return fightingType;
-      case "fire":
-        return fireType;
-      case "flying":
-        return flyingType;
-      case "ghost":
-        return ghostType;
-      case "grass":
-        return grassType;
-      case "ground":
-        return groundType;
-      case "ice":
-        return iceType;
-      case "normal":
-        return normalType;
-      case "poison":
-        return poisonType;
-      case "psychic":
-        return psychicType;
-      case "rock":
-        return rockType;
-      case "steel":
-        return steelType;
-      case "water":
-        return waterType;
-      default:
-        return normalType;
-    }
+
+  const typeDict = {
+    bug: bugType,
+    dark: darkType,
+    dragon: dragonType,
+    electric: electricType,
+    fairy: fairyType,
+    fighting: fightingType,
+    fire: fireType,
+    flying: flyingType,
+    ghost: ghostType,
+    grass: grassType,
+    ground: groundType,
+    ice: iceType,
+    normal: normalType,
+    poison: poisonType,
+    psychic: psychicType,
+    rock: rockType,
+    steel: steelType,
+    water: waterType,
   };
 
   if (data === null)
@@ -83,8 +62,8 @@ const pokedexEntry: React.FC<pokedexEntryProps> = ({
           position: "absolute",
           height: length,
           width: length,
-          left: `${(window.innerWidth - length) / 2 - 5}px`,
-          top: `${window.innerHeight / 2 - length}px`,
+          left: "70%",
+          top: `${45}%`,
           border: "none",
           padding: "0",
           background: "transparent",
@@ -105,7 +84,8 @@ const pokedexEntry: React.FC<pokedexEntryProps> = ({
         >
           <img
             className="ui centered tiny image"
-            src={getPicture(data.type1)}
+            // @ts-ignore
+            src={typeDict[data.type1]}
             alt={"no pokemon found"}
           />
         </div>
@@ -122,7 +102,8 @@ const pokedexEntry: React.FC<pokedexEntryProps> = ({
           >
             <img
               className="ui centered tiny image"
-              src={getPicture(data.type1)}
+              // @ts-ignore
+              src={typeDict[data.type1]}
               alt={"no pokemon found"}
             />
           </div>
@@ -132,7 +113,8 @@ const pokedexEntry: React.FC<pokedexEntryProps> = ({
           >
             <img
               className="ui centered tiny image"
-              src={getPicture(data.type2)}
+              // @ts-ignore
+              src={typeDict[data.type2]}
               alt={"no pokemon found"}
             />
           </div>
@@ -148,8 +130,10 @@ const pokedexEntry: React.FC<pokedexEntryProps> = ({
         position: "absolute",
         height: length,
         width: length,
-        left: `${(window.innerWidth - length) / 2 + 5}px`,
-        top: `${window.innerHeight / 2 - length}px`,
+        // left: `${(window.innerWidth - length) / 2 + 5}px`,
+        // top: `${window.innerHeight / 2 - length - 70}px`,
+        left: "70%",
+        top: `${30}%`,
         border: "none",
         padding: "0",
         background: "transparent",
