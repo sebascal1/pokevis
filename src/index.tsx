@@ -1,3 +1,7 @@
+//Fundamentos 1
+//Proyecto Final
+//Sebastian Calvache
+
 import React from "react";
 import ReactDOM from "react-dom/client";
 import "./index.css";

@@ -6,9 +6,10 @@ import TreeVis from "./Components/TreeVis";
 import Map from "./Components/Map";
 
 function App() {
+  //set the data as a state entry to be able to use throughout the app
   const [data, setData] = useState<Promise<void> | null | rawDataEntry[]>(null);
 
-  //get the data upon loading the screen
+  //get the data upon loading the app for the first time
   useEffect(() => {
     d3.csv("./pokemon.csv")
       .then((response) => {
@@ -18,6 +19,7 @@ function App() {
         console.log(e);
       });
   }, []);
+
   return (
     <React.Fragment>
       <article className="App">
@@ -25,7 +27,9 @@ function App() {
           <h1>Kanto National Pokédex</h1>
         </header>
         <main className="main">
+          {/*Display the Map component*/}
           <Map />
+          {/*If the data has been loaded successfully, display treeVis component and pass the loaded data*/}
           {data !== null && <TreeVis data={data as rawDataEntry[]} />}
         </main>
         <footer></footer>

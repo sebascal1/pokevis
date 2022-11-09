@@ -15,8 +15,8 @@ const TreeVis: React.FC<VisProps> = ({ data }) => {
   const svgRef = useRef<SVGSVGElement | null>(null);
   const width =
     window.innerWidth < 700 ? window.innerWidth : 0.5 * window.innerWidth; // // outer width, in pixels
-  let radius = width / 2.5;
-  let donutThickness = 10;
+  let radius = width / 2.5; //get the radius as half the width
+  let donutThickness = 10; //thickness for each arc
   let innerRadius = radius / 2; // inner radius of pie, in pixels (non-zero for donut)
   let outerRadius = innerRadius + donutThickness; // outer radius of pie, in pixels
   let innerRadius2 = radius / 1.4;
@@ -32,9 +32,9 @@ const TreeVis: React.FC<VisProps> = ({ data }) => {
   const haloWidth = 3; // padding around the labels
   const dispatch = useDispatch();
 
-  //root for the tree graph
+  //when the component loads, or the selected pokemon changes, run the following useEffect hook
   useEffect(() => {
-    //number of colour stops to use to create the line gradents for the flow lines
+    //number of colour stops to use to create the line gradients for the flow lines connecting the two circles
     const numberOfGradientStops = 2;
     const stops = d3
       .range(numberOfGradientStops)
@@ -63,14 +63,23 @@ const TreeVis: React.FC<VisProps> = ({ data }) => {
     //parse the data in an object that can then be fed into the d3 tree hierarchy
     for (let i = 0; i < data.length; i++) {
       let entry: any = data[i];
+      //grab only the original 151 pokemon
       if (entry.pokedex_number > 151) continue;
-      entry.value = 1;
+      entry.value = 1; //dummy variable, has no use in the roots of the tree but is needed to create the tree correctly in the lower levels, as we use it for sorting purposes
+
+      //if there is no entry yet for the primary data type, create one along with a children node to store secondary types
       if (dataObject[entry.type1] === undefined)
         dataObject[entry.type1] = { name: entry.type1, children: [] };
 
+      //if type2 field is empty, assign it as type1 (it means it only has 1 type)
       let type2 = entry.type2 === "" ? entry.type1 : entry.type2;
+      //function to get a matching data type
       let typeIndex = (entry: { name: string }) => entry.name === type2;
+      //get the index of the data type in the children array of the first data type
       let index = dataObject[entry.type1].children.findIndex(typeIndex);
+
+      //if index is less than 0, it means it doesnt exist yet, so create it and append it to the children of type1
+      //also include a children node in order to store the pokemons
       if (index < 0) {
         dataObject[entry.type1].children.push({ name: type2, children: [] });
         dataObject[entry.type1].children[
@@ -80,6 +89,7 @@ const TreeVis: React.FC<VisProps> = ({ data }) => {
           dataObject[entry.type1].children.length - 1
         ].value = 1;
       } else {
+        //the type exists already, simply push the pokemon entry
         dataObject[entry.type1].children[index].children.push(entry);
         dataObject[entry.type1].children[index].value =
           dataObject[entry.type1].children[index].children.length;
@@ -110,6 +120,7 @@ const TreeVis: React.FC<VisProps> = ({ data }) => {
       .endAngle((d) => d.x1)
       .padAngle(1 / radius)
       .padRadius(radius)
+      //set the innerRadius of the tree arc depending on the level
       // @ts-ignore
       .innerRadius((d) => {
         // @ts-ignore
@@ -120,6 +131,7 @@ const TreeVis: React.FC<VisProps> = ({ data }) => {
           return innerRadius2;
         }
       })
+      //set the outerRadius of the tree arc depending on the level
       // @ts-ignore
       .outerRadius((d) => {
         // @ts-ignore
@@ -130,6 +142,7 @@ const TreeVis: React.FC<VisProps> = ({ data }) => {
           return outerRadius2;
         }
       })
+      //set the corner radius
       .cornerRadius(() => {
         return 5;
       });
@@ -137,6 +150,7 @@ const TreeVis: React.FC<VisProps> = ({ data }) => {
     const svg = d3.select(svgRef.current);
     svg.selectAll("*").remove(); // Clear svg content before adding new elements
 
+    //create definitions for the color gradients we may have for the paths connecting the inner and outer arc trees
     const defs = svg.append("defs");
     pokemonTypes.forEach((type) => {
       for (let i = 0; i < pokemonTypes.length; i++) {
@@ -162,18 +176,21 @@ const TreeVis: React.FC<VisProps> = ({ data }) => {
       }
     });
 
+    //set the svg attributes
     svg
       .attr("viewBox", `${-radius} ${-radius} ${radius * 2} ${radius * 2}`)
       .style("max-width", `${width}px`)
       .style("font", "8px sans-serif");
 
-    // Compute the for the tree layout.
+    // Compute the tree layout.
     d3
       .tree()
       .size([2 * Math.PI, outerRadius2 + 10])
+      //separation value for the leaves of the tree (i.e the pokemons), set up so their separation coincides the types in the arc tree
       // @ts-ignore
       .separation((a, b) => (a.parent === b.parent ? 1.5 : 1.5))(root);
 
+    //create the paths that connect the tree arcs and extend to the leaves (individual pokemon entries)
     svg
       .append("g")
       .selectAll("path")
@@ -186,7 +203,8 @@ const TreeVis: React.FC<VisProps> = ({ data }) => {
         if (d.target.depth > 2) {
           let type1;
           let type2;
-          //need to determine what part of the semi circle the node is at in order to select the correct colour gradient
+          //need to determine which half of the circle the node is at in order to select the correct colour gradient
+          // as the gradient flow is reverse for the second half of the circ;e
           //for the path
           if (d.target.x < Math.PI) {
             type1 =
@@ -222,8 +240,9 @@ const TreeVis: React.FC<VisProps> = ({ data }) => {
           .angle((d) => d.x)
           // @ts-ignore
           .radius((d) => d.y)
-      );
+      ); //generate the link
 
+    //create the arcs for both the inner and outer donuts
     svg
       .append("g")
       .selectAll("path")
@@ -239,8 +258,10 @@ const TreeVis: React.FC<VisProps> = ({ data }) => {
       .attr("id", "donutArc")
       // @ts-ignore
       .attr("d", arc)
+      //when the mouse enter an arc, highlight the subset of pokemon (and secondary types if it is an inner arc) that belong to that arc
       // @ts-ignore
       .on("mouseenter", function (e, datum: HierarchyNode<rawDataEntry>) {
+        //mute all paths that dont belong to the subset
         d3.selectAll("#treePath")
           .filter((d: any) => {
             if (datum.depth === 1) {
@@ -258,6 +279,7 @@ const TreeVis: React.FC<VisProps> = ({ data }) => {
           })
           .style("stroke-opacity", 0.05);
 
+        //mute all the leaves that dont belong to the subset
         svg
           .selectAll("#pokeball")
           // @ts-ignore
@@ -278,6 +300,7 @@ const TreeVis: React.FC<VisProps> = ({ data }) => {
           })
           .style("opacity", 0.05);
 
+        //mute all the donut arcs that dont belong to the subset
         svg
           .selectAll("#donutArc")
           // @ts-ignore
@@ -301,6 +324,7 @@ const TreeVis: React.FC<VisProps> = ({ data }) => {
           .style("opacity", 0.05);
         d3.select(this).style("opacity", 1);
       })
+      //on mouse leave event, reset everything to default
       .on("mouseleave", function () {
         svg.selectAll("#donutArc").style("opacity", 1);
         d3.selectAll("#treePath").style("stroke-opacity", strokeOpacity);

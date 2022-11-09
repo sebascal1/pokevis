@@ -1,3 +1,5 @@
+//Component to show the sprite of the selected pokemon within the center circle of treeVis
+
 import React from "react";
 import { capitalize } from "../Utils";
 import { rawDataEntry } from "../Utils/types";
@@ -26,14 +28,18 @@ type pokedexEntryProps = {
   //radius: number;
 };
 
+//PokedexEntry takes in the data of the pokemon to display, aswell as the innerRadius of treeVis
 const pokedexEntry: React.FC<pokedexEntryProps> = ({
   data,
   innerRadius,
   //radius,
 }) => {
+  //calculate the length of one side of the biggest square that can fit within the inner circle
   const length = Math.sqrt(2 * Math.pow(innerRadius / 2, 2));
+  //determine whether we're in movile view or not depending on the screen size
   const mobileView = window.innerWidth < 700;
 
+  //create a dict for referencing the images of the pokemon types
   const typeDict = {
     bug: bugType,
     dark: darkType,
@@ -57,7 +63,10 @@ const pokedexEntry: React.FC<pokedexEntryProps> = ({
 
   if (data === null) return <div></div>;
 
+  //function to render the type images for a pokemon depending on the type or types it has
   const renderTypeImages = (type1: string, type2: string) => {
+    //if the entry of the second type is null, or same as the first, it only has one type
+    //only render one image
     if (type2 === "" || type2 === type1) {
       return (
         <div
@@ -73,6 +82,7 @@ const pokedexEntry: React.FC<pokedexEntryProps> = ({
         </div>
       );
     } else {
+      //else render both types side by side
       return (
         <div
           className="ui basic horizontal segments"
@@ -123,6 +133,7 @@ const pokedexEntry: React.FC<pokedexEntryProps> = ({
         className="ui basic segment"
         style={{ background: "transparent", border: "none", padding: "0" }}
       >
+        {/*Get the sprite of the pokemon from the following source*/}
         <img
           className="ui centered medium image"
           src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${data.pokedex_number}.png`}
@@ -139,6 +150,7 @@ const pokedexEntry: React.FC<pokedexEntryProps> = ({
           width: "auto",
         }}
       >
+        {/*Displat the name and capitalize it*/}
         <h5 className="ui header">{`No. ${data.pokedex_number} ${capitalize(
           data.name
         )}`}</h5>
