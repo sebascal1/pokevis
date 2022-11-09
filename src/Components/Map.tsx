@@ -11,7 +11,7 @@ const Map = () => {
     window.innerWidth < 700 ? window.innerWidth : 0.5 * window.innerWidth;
   const imageHeight = imageWidth * 0.6;
   // @ts-ignore
-  const selectedPokemon = useSelector((state) => state.selectedPokemon);
+  const selectedPokemon = useSelector((state) => state.selectedPokemon?.name);
   const [locations, setLocation] = useState<any[]>([]);
   const getRoutes = (entry: string) => {
     if (entry.includes("sea")) {
@@ -51,8 +51,6 @@ const Map = () => {
 
     getData();
   }, [selectedPokemon]);
-
-  console.log(locations);
 
   const mapArr = [
     "1",

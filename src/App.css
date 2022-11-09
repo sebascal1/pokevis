@@ -16,6 +16,8 @@ html, body, #root, .App {
   text-align: center;
   background:#39aea9;
   justify-content: center;
+  justify-items: center;
+  align-items: center;
   margin: 20px auto;
   grid-template-columns: repeat(2, 1fr);
   grid-template-rows: 3fr 2fr;

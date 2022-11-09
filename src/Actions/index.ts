@@ -1,4 +1,6 @@
-export const selectPokemon = (pokemon: string | null = null) => {
+import { rawDataEntry } from "../Utils/types";
+
+export const selectPokemon = (pokemon: rawDataEntry | null = null) => {
   //return pokemon
   return {
     type: "POKEMON_SELECTED",

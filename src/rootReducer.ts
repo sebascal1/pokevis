@@ -1,5 +1,7 @@
-type RootState = { selectedPokemon: string | null };
-type Action = { type: string; payload: string | null };
+import { rawDataEntry } from "./Utils/types";
+
+export type RootState = { selectedPokemon: rawDataEntry | null };
+type Action = { type: string; payload: rawDataEntry | null };
 
 export const rootReducer = (
   state: RootState = initialState,

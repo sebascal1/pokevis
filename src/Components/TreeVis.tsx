@@ -374,7 +374,7 @@ const TreeVis: React.FC<VisProps> = ({ data }) => {
         //make sure the events only occur for the pokemon circles (the leaves)
         if (datum.depth !== 3) return;
         setHoveredPokemonData(datum as HierarchyNode<rawDataEntry>);
-        dispatch(selectPokemon(datum.data.name));
+        dispatch(selectPokemon(datum.data));
         d3.select(this).attr("r", 5);
 
         svg
