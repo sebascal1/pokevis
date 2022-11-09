@@ -426,7 +426,7 @@ const TreeVis: React.FC<VisProps> = ({ data }) => {
       ];
 
       statsArr.forEach((stat: any, i: number) => {
-        let spacing = 30;
+        let spacing = 20;
         let boxHeight = 7;
         let yTranslate = 35;
 

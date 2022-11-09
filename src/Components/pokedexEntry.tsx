@@ -114,7 +114,7 @@ const pokedexEntry: React.FC<pokedexEntryProps> = ({
         width: length,
         border: "none",
         marginLeft: `-${length / 2}px`,
-        top: `${mobileView ? "30%" : "22%"}`,
+        top: `${mobileView ? "30%" : "26.5%"}`,
         left: "50%",
         background: "transparent",
       }}
@@ -124,7 +124,7 @@ const pokedexEntry: React.FC<pokedexEntryProps> = ({
         style={{ background: "transparent", border: "none", padding: "0" }}
       >
         <img
-          className="ui centered small image"
+          className="ui centered medium image"
           src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${data.pokedex_number}.png`}
           alt={"no pokemon found"}
         />

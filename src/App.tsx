@@ -22,7 +22,7 @@ function App() {
     <React.Fragment>
       <article className="App">
         <header style={{ display: "flex", justifyContent: "center" }}>
-          <h1>Welcome to Kanto</h1>
+          <h1>Kanto National Pokédex</h1>
         </header>
         <main className="main">
           <Map />
