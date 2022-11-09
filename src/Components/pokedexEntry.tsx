@@ -123,10 +123,10 @@ const pokedexEntry: React.FC<pokedexEntryProps> = ({
         height: length,
         width: length,
         border: "none",
-        marginLeft: `-${length / 2}px`,
         top: `${mobileView ? "30%" : "27%"}`,
         left: "50%",
         background: "transparent",
+        transform: `translateX(${-50}%)`,
       }}
     >
       <div

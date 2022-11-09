@@ -103,6 +103,7 @@ const Map = () => {
         justifyContent: "center",
         alignItems: "center",
       }}
+      className="kanto-map"
     >
       <div
         style={{

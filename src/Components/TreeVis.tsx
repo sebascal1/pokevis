@@ -563,8 +563,10 @@ const TreeVis: React.FC<VisProps> = ({ data }) => {
       style={{
         display: "inline-block",
         position: "relative",
-        width: `${mobileView ? "100%" : "50%"}`,
+        // width: `${mobileView ? "100%" : "50%"}`,
+        width: "100%",
       }}
+      className="vis"
     >
       <svg
         ref={svgRef}

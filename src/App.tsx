@@ -4,6 +4,7 @@ import * as d3 from "d3";
 import { rawDataEntry } from "./Utils/types";
 import TreeVis from "./Components/TreeVis";
 import Map from "./Components/Map";
+import PokemonInfo from "./Components/PokemonInfo";
 
 function App() {
   //set the data as a state entry to be able to use throughout the app
@@ -29,6 +30,9 @@ function App() {
         <main className="main">
           {/*Display the Map component*/}
           <Map />
+
+          <PokemonInfo />
+
           {/*If the data has been loaded successfully, display treeVis component and pass the loaded data*/}
           {data !== null && <TreeVis data={data as rawDataEntry[]} />}
         </main>

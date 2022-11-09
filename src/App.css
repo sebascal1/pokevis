@@ -12,18 +12,33 @@ html, body, #root, .App {
 }
 
 .main{
+  display: grid;
   text-align: center;
   background:#39aea9;
-  display: flex;
   justify-content: center;
-  flex-direction: row;
   margin: 20px auto;
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: 3fr 2fr;
 }
 
 .App-logo {
   height: 40vmin;
   pointer-events: none;
 }
+
+.vis{
+  grid-area: 1 / 2 / span 2/ span 1;
+}
+
+.kanto-map{
+  grid-area: 1 / 1 / span 1/ span 1;
+}
+
+.pokemon-info{
+  grid-area: 2 / 1 / span 1/ span 1;
+}
+
+
 
 @media (prefers-reduced-motion: no-preference) {
   .App-logo {
@@ -59,9 +74,12 @@ html, body, #root, .App {
 
   .App{
     flex-direction: column;
+
   }
 
   .main{
+    display: flex;
+    justify-content: center;
     flex-direction: column-reverse;
   }
 
