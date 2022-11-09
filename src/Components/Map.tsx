@@ -22,7 +22,7 @@ const Map = () => {
   };
 
   useEffect(() => {
-    if (selectedPokemon === null) return;
+    if (selectedPokemon === null || selectedPokemon === undefined) return;
     const allowedGames = [
       "red",
       "blue",
@@ -81,9 +81,10 @@ const Map = () => {
   ];
 
   const renderRoutes = () => {
-    return mapArr.map((entry) => {
+    return mapArr.map((entry, i) => {
       return (
         <div
+          key={i}
           className="route"
           id={`route${entry}`}
           style={{ opacity: `${locations.includes(entry) ? 0.7 : 0}` }}

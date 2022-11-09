@@ -1,7 +1,8 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import { RootState } from "../rootReducer";
+import axios from "axios";
 
+import { RootState } from "../rootReducer";
 import bugType from "../Icons/bug_type.png";
 import darkType from "../Icons/dark_type.png";
 import dragonType from "../Icons/dragon_type.png";
@@ -25,6 +26,7 @@ const PokemonInfo = () => {
   const selectedPokemon = useSelector(
     (state: RootState) => state.selectedPokemon
   );
+  const [pokeText, setPokeText] = useState("");
 
   //enum to make sure we have a controlled set of inputs for the getStrengthsOrWeaknesses function
   enum attributeType {
@@ -54,17 +56,31 @@ const PokemonInfo = () => {
     water: waterType,
   };
 
+  useEffect(() => {
+    const getData = async () => {
+      if (selectedPokemon === null || selectedPokemon === undefined) return;
+      const data = await axios.get(
+        `https://pokeapi.co/api/v2/pokemon-species/${selectedPokemon.name.toLowerCase()}/`
+      );
+
+      // @ts-ignore
+      setPokeText(data.data.flavor_text_entries[0].flavor_text);
+    };
+
+    getData();
+  }, [selectedPokemon]);
+
+  console.log(pokeText);
+
   //go through the selectedPokemon data entry, pick out the data related to attack attributes and extract the types
   //the pokemon is strong and weak against depending on the type
   const getStrengthsOrWeaknesses = (type: attributeType) => {
     if (selectedPokemon === null) return;
     const pokemonEntryAsArray = Object.entries(selectedPokemon);
-
     const attrArray = pokemonEntryAsArray.filter((entry) =>
       entry[0].includes("against")
     );
     let filteredAttributes;
-
     //depending on the type, filter the pokemon
     if (type === attributeType.strengths) {
       filteredAttributes = attrArray.filter((entry) => parseInt(entry[1]) < 1);
@@ -72,11 +88,10 @@ const PokemonInfo = () => {
       filteredAttributes = attrArray.filter((entry) => parseInt(entry[1]) > 1);
     }
 
-    console.log(filteredAttributes);
-    return filteredAttributes?.map((entry) => {
+    return filteredAttributes?.map((entry, i) => {
       let type = entry[0].split("_")[1];
       return (
-        <li style={{ display: "inline-block" }}>
+        <li style={{ display: "inline-block" }} key={i}>
           <img
             src={
               // @ts-ignore
