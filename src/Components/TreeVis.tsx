@@ -14,7 +14,9 @@ const TreeVis: React.FC<VisProps> = ({ data }) => {
 
   const svgRef = useRef<SVGSVGElement | null>(null);
   const width =
-    window.innerWidth < 700 ? window.innerWidth : 0.5 * window.innerWidth; // // outer width, in pixels
+    window.innerWidth < 700
+      ? window.innerWidth * 0.95
+      : 0.5 * window.innerWidth * 0.95; // // outer width, in pixels
   let radius = width / 2.5; //get the radius as half the width
   let donutThickness = 10; //thickness for each arc
   let innerRadius = radius / 2; // inner radius of pie, in pixels (non-zero for donut)
@@ -102,6 +104,8 @@ const TreeVis: React.FC<VisProps> = ({ data }) => {
 
     //make a data object with a parent root node to which it's children are the previously generated data
     let dataObj = { name: "root", children: dataArr };
+
+    console.log(dataObj);
 
     //create the root object for the tree data
     const root = partition(dataObj);
@@ -564,7 +568,8 @@ const TreeVis: React.FC<VisProps> = ({ data }) => {
         display: "inline-block",
         position: "relative",
         // width: `${mobileView ? "100%" : "50%"}`,
-        width: "100%",
+        width: "95%",
+        clipPath: "polygon(0% 0%, 100% 0%, 100% 80%, 80% 100%, 0% 100%)",
       }}
       className="vis"
     >
@@ -575,6 +580,7 @@ const TreeVis: React.FC<VisProps> = ({ data }) => {
         style={{
           background: "#def1f1",
           padding: "15px auto",
+          // border: "5px solid blue",
         }}
       />
       <PokedexEntry

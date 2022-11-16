@@ -8,7 +8,9 @@ import "./map.css";
 const Map = () => {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const imageWidth =
-    window.innerWidth < 700 ? window.innerWidth : 0.5 * window.innerWidth;
+    window.innerWidth < 700
+      ? window.innerWidth
+      : 0.5 * window.innerWidth * 0.95;
   const imageHeight = imageWidth * 0.6;
   // @ts-ignore
   const selectedPokemon = useSelector((state) => state.selectedPokemon?.name);
@@ -98,23 +100,30 @@ const Map = () => {
       ref={containerRef}
       style={{
         display: "flex",
-        width: "100%",
+        width: "95%",
+        height: "96%",
         justifyContent: "center",
         alignItems: "center",
+        border: "10px solid rgb(50,50,50)",
+        borderRadius: "10px",
       }}
       className="kanto-map"
     >
       <div
         style={{
           display: "grid",
-          backgroundColor: "red",
-          width: `${imageWidth}px`,
-          height: `${imageHeight}px`,
+          backgroundColor: "rgb(50,50,50)",
+          //width: `${imageWidth}px`,
+          // height: `${imageHeight}px`,
+          width: `100%`,
+          height: `${
+            window.innerWidth < 700 ? imageHeight * 0.9 + "px" : "100%"
+          }`,
           gridTemplateRows: "repeat(60, 1fr)",
           gridTemplateColumns: "repeat(100, 1fr)",
           backgroundImage: `url(${kantoMap})`,
           backgroundRepeat: "no-repeat",
-          backgroundSize: "contain",
+          backgroundSize: "100% 100%",
           backgroundPosition: "center",
         }}
       >

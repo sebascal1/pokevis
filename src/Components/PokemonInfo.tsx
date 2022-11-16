@@ -70,8 +70,6 @@ const PokemonInfo = () => {
     getData();
   }, [selectedPokemon]);
 
-  console.log(pokeText);
-
   //go through the selectedPokemon data entry, pick out the data related to attack attributes and extract the types
   //the pokemon is strong and weak against depending on the type
   const getStrengthsOrWeaknesses = (type: attributeType) => {
@@ -114,8 +112,15 @@ const PokemonInfo = () => {
       className="pokemon-info"
       style={{
         height: "95%",
-        width: "97%",
-        backgroundColor: "beige",
+        width: "95%",
+        backgroundColor: "rgb(35,35,35)",
+        color: "white",
+        display: "flex",
+        justifyContent: "center",
+        flexDirection: "column",
+        alignItems: "center",
+        border: "5px solid rgb(220,220,220)",
+        borderRadius: "10px",
       }}
     >
       <section className={"strengths display"} style={{ display: "flex" }}>
@@ -129,6 +134,9 @@ const PokemonInfo = () => {
         <ul style={{ padding: "0", margin: "0" }}>
           {getStrengthsOrWeaknesses(attributeType.weaknesses)}
         </ul>
+      </section>
+      <section className="pokemon-text" style={{ display: "block" }}>
+        <p>{pokeText}</p>
       </section>
     </article>
   );
