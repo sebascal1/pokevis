@@ -23,6 +23,7 @@ const TreeVis: React.FC<VisProps> = ({ data }) => {
   let outerRadius = innerRadius + donutThickness; // outer radius of pie, in pixels
   let innerRadius2 = radius / 1.4;
   let outerRadius2 = innerRadius2 + donutThickness; // outer radius of pie, in pixels
+  let innerRadius3 = radius / 1.1;
   const mobileView = window.innerWidth < 700;
 
   const r = 2; // radius of nodes
@@ -105,6 +106,12 @@ const TreeVis: React.FC<VisProps> = ({ data }) => {
     //make a data object with a parent root node to which it's children are the previously generated data
     let dataObj = { name: "root", children: dataArr };
 
+    const baseStatScale = d3
+      .scaleLinear()
+      // @ts-ignore
+      .domain(d3.extent(data, (d) => d.base_total))
+      .range([innerRadius3, innerRadius3 + 30]);
+
     console.log(dataObj);
 
     //create the root object for the tree data
@@ -133,6 +140,9 @@ const TreeVis: React.FC<VisProps> = ({ data }) => {
           // @ts-ignore
         } else if (d.depth === 2) {
           return innerRadius2;
+          // @ts-ignore
+        } else if (d.depth === 3) {
+          return innerRadius3;
         }
       })
       //set the outerRadius of the tree arc depending on the level
@@ -144,6 +154,10 @@ const TreeVis: React.FC<VisProps> = ({ data }) => {
           // @ts-ignore
         } else if (d.depth === 2) {
           return outerRadius2;
+          // @ts-ignore
+        } else if (d.depth === 3) {
+          // @ts-ignore
+          return baseStatScale(d.data.base_total);
         }
       })
       //set the corner radius
@@ -265,6 +279,7 @@ const TreeVis: React.FC<VisProps> = ({ data }) => {
       //when the mouse enter an arc, highlight the subset of pokemon (and secondary types if it is an inner arc) that belong to that arc
       // @ts-ignore
       .on("mouseenter", function (e, datum: HierarchyNode<rawDataEntry>) {
+        console.log(datum);
         //mute all paths that dont belong to the subset
         d3.selectAll("#treePath")
           .filter((d: any) => {
