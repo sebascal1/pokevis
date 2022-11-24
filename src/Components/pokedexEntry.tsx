@@ -65,54 +65,53 @@ const pokedexEntry: React.FC<pokedexEntryProps> = ({
 
   //function to render the type images for a pokemon depending on the type or types it has
   const renderTypeImages = (type1: string, type2: string) => {
-    //if the entry of the second type is null, or same as the first, it only has one type
-    //only render one image
-    if (type2 === "" || type2 === type1) {
-      return (
+    return (
+      <div
+        className="pokedex-type-container"
+        style={{
+          background: "transparent",
+          border: "none",
+          padding: "0",
+          display: "flex",
+        }}
+      >
         <div
-          className="ui basic segment"
-          style={{ background: "transparent", border: "none", padding: "0" }}
+          className="pokedex-type"
+          style={{
+            background: "transparent",
+            border: "none",
+            padding: "0",
+          }}
         >
           <img
-            className="ui centered tiny image"
+            className="pokedex-type-image"
             // @ts-ignore
             src={typeDict[data.type1]}
             alt={"no pokemon found"}
+            style={{ width: "5rem" }}
           />
         </div>
-      );
-    } else {
-      //else render both types side by side
-      return (
-        <div
-          className="ui basic horizontal segments"
-          style={{ background: "transparent", border: "none", padding: "0" }}
-        >
+        {/*If the pokémon has a second type then render the second type as a div in a row*/}
+        {!(type2 === "" || type2 === type1) && (
           <div
-            className="ui basic segment"
-            style={{ background: "transparent", border: "none", padding: "0" }}
+            className="pokedex-type"
+            style={{
+              background: "transparent",
+              border: "none",
+              padding: "0",
+            }}
           >
             <img
-              className="ui centered tiny image"
-              // @ts-ignore
-              src={typeDict[data.type1]}
-              alt={"no pokemon found"}
-            />
-          </div>
-          <div
-            className="ui basic segment"
-            style={{ background: "transparent", border: "none", padding: "0" }}
-          >
-            <img
-              className="ui centered tiny image"
+              className="pokedex-type-image"
               // @ts-ignore
               src={typeDict[data.type2]}
               alt={"no pokemon found"}
+              style={{ width: "5rem" }}
             />
           </div>
-        </div>
-      );
-    }
+        )}
+      </div>
+    );
   };
 
   return (
@@ -120,6 +119,8 @@ const pokedexEntry: React.FC<pokedexEntryProps> = ({
       className={"pokedex"}
       style={{
         position: "absolute",
+        display: "flex",
+        flexDirection: "column",
         height: length,
         width: length,
         border: "none",
@@ -127,6 +128,7 @@ const pokedexEntry: React.FC<pokedexEntryProps> = ({
         left: "50%",
         background: "transparent",
         transform: `translateX(${-50}%)`,
+        alignItems: "center",
       }}
     >
       <div
@@ -135,9 +137,10 @@ const pokedexEntry: React.FC<pokedexEntryProps> = ({
       >
         {/*Get the sprite of the pokemon from the following source*/}
         <img
-          className="ui centered medium image"
-          src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${data.pokedex_number}.png`}
+          className="pokedex-image"
+          src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${data.pokedex_number}.gif`}
           alt={"no pokemon found"}
+          style={{ height: "5rem" }}
         />
       </div>
       {renderTypeImages(data.type1, data.type2)}

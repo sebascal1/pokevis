@@ -126,10 +126,24 @@ const TreeVis: React.FC<VisProps> = ({ data }) => {
     const arc = d3
       .arc()
       // @ts-ignore
-      .startAngle((d) => d.x0)
+      .startAngle((d) => {
+        // @ts-ignore
+        return d.x0;
+      })
       // @ts-ignore
-      .endAngle((d) => d.x1)
-      .padAngle(1 / radius)
+      .endAngle((d) => {
+        // @ts-ignore
+        if (d.depth === 3) return d.x0 + Math.PI / 150;
+        // @ts-ignore
+        return d.x1;
+      })
+      .padAngle((d) => {
+        // @ts-ignore
+        if (d.depth === 3) {
+          return d.padAngle;
+        }
+        return 1 / radius;
+      })
       .padRadius(radius)
       //set the innerRadius of the tree arc depending on the level
       // @ts-ignore
@@ -389,6 +403,7 @@ const TreeVis: React.FC<VisProps> = ({ data }) => {
       .attr("id", "pokeball")
       .attr("class", "pokemonCircle")
       .attr("r", (d) => (d.children ? 0 : r))
+      .style("border", "1px solid red")
       .on("mouseenter", function (e, datum: HierarchyNode<any>) {
         //make sure the events only occur for the pokemon circles (the leaves)
         if (datum.depth !== 3) return;
