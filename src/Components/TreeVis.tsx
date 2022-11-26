@@ -34,6 +34,7 @@ const TreeVis: React.FC<VisProps> = ({ data }) => {
   const halo = "#fff"; // color of label halo
   const haloWidth = 3; // padding around the labels
   const dispatch = useDispatch();
+  const filteredData = data.filter((d) => parseInt(d.pokedex_number) < 152);
 
   //when the component loads, or the selected pokemon changes, run the following useEffect hook
   useEffect(() => {
@@ -399,11 +400,11 @@ const TreeVis: React.FC<VisProps> = ({ data }) => {
       .attr("fill", (d: HierarchyNode<any>) =>
         d.data.is_legendary > 0 ? "#e29f12" : stroke
       )
-      // @ts-ignore
       .attr("id", "pokeball")
       .attr("class", "pokemonCircle")
       .attr("r", (d) => (d.children ? 0 : r))
-      .style("border", "1px solid red")
+      .style("fill", `#url("https://github.com/favicon.ico")`)
+
       .on("mouseenter", function (e, datum: HierarchyNode<any>) {
         //make sure the events only occur for the pokemon circles (the leaves)
         if (datum.depth !== 3) return;
@@ -446,6 +447,7 @@ const TreeVis: React.FC<VisProps> = ({ data }) => {
       .attr("r", innerRadius)
       .attr("fill", "#def1f1");
 
+    //define an array of accessors for the different statistics in order to go through them in an array
     let statAccessors = [
       attackAccessor,
       defenseAccessor,
@@ -456,16 +458,33 @@ const TreeVis: React.FC<VisProps> = ({ data }) => {
 
     let statsArr: any = [];
 
-    let statLabels = ["attack", "defense", "sp attack", "sp defense", "speed"];
+    //generate the labels for the statistics that will be shown
+    const statLabels = ["Atk", "Def", "Sp. Atk.", "Sp. Def", "Spd."];
+    const statColors = [
+      "red",
+      "CornflowerBlue",
+      "crimson",
+      "darkcyan",
+      "goldenrod",
+    ];
+    const Offsets = [15, 15, 30, 30, 18];
 
     statLabels.forEach((stat, i) => {
       let statObject: any = { name: stat };
 
-      statObject.max = d3.max(data, statAccessors[i]) as number;
-      statObject.min = d3.min(data, statAccessors[i]) as number;
-      statObject.mean = d3.mean(data, statAccessors[i]) as number;
-      statObject.lq = d3.quantile(data, 0.25, statAccessors[i]) as number;
-      statObject.uq = d3.quantile(data, 0.75, statAccessors[i]) as number;
+      statObject.max = d3.max(filteredData, statAccessors[i]) as number;
+      statObject.min = d3.min(filteredData, statAccessors[i]) as number;
+      statObject.mean = d3.mean(filteredData, statAccessors[i]) as number;
+      statObject.lq = d3.quantile(
+        filteredData,
+        0.25,
+        statAccessors[i]
+      ) as number;
+      statObject.uq = d3.quantile(
+        filteredData,
+        0.75,
+        statAccessors[i]
+      ) as number;
 
       statsArr.push(statObject);
     });
@@ -484,38 +503,53 @@ const TreeVis: React.FC<VisProps> = ({ data }) => {
       ];
 
       statsArr.forEach((stat: any, i: number) => {
-        let spacing = 20;
-        let boxHeight = 7;
-        let yTranslate = 35;
+        let spacing = 15;
+        let boxHeight = 10;
+        let yTranslate = 20;
 
         //scale line
         let statGroup = svg.append("g");
 
+        //pokemon position
         statGroup
-          .append("line")
-          .attr("x1", 0)
-          .attr("x2", scaleLength)
-          .attr("y1", i * spacing)
-          .attr("y2", i * spacing)
-          .style("stroke", "black")
-          .style("fill", "none")
+          .append("rect")
+          .attr("x", 0)
+          .attr("y", i * spacing)
+          .attr("width", statScale(pokemonStats[i]))
+          .attr("height", boxHeight)
           .style(
             "transform",
             `translate(${-scaleLength / 2}px,${yTranslate}px)`
-          );
+          )
+          .style("rx", `${boxHeight / 2}`)
+          .style("fill", statColors[i]);
+
+        statGroup
+          .append("rect")
+          .attr("x", 0)
+          .attr("y", i * spacing)
+          .attr("width", scaleLength)
+          .attr("height", boxHeight)
+          .style(
+            "transform",
+            `translate(${-scaleLength / 2}px,${yTranslate}px)`
+          )
+          .style("rx", `${boxHeight / 2}`)
+          .style("fill", "none")
+          .style("stroke", "black");
 
         //median
         statGroup
           .append("line")
           .attr("x1", statScale(stat.mean))
           .attr("x2", statScale(stat.mean))
-          .attr("y1", i * spacing)
-          .attr("y2", i * spacing - boxHeight)
+          .attr("y1", i * spacing - boxHeight)
+          .attr("y2", i * spacing)
           .style("stroke", "black")
           .style("fill", "none")
           .style(
             "transform",
-            `translate(${-scaleLength / 2}px,${yTranslate}px)`
+            `translate(${-scaleLength / 2}px,${yTranslate + boxHeight}px)`
           );
 
         //upper quartile
@@ -523,13 +557,13 @@ const TreeVis: React.FC<VisProps> = ({ data }) => {
           .append("line")
           .attr("x1", statScale(stat.uq))
           .attr("x2", statScale(stat.uq))
-          .attr("y1", i * spacing)
-          .attr("y2", i * spacing - boxHeight)
+          .attr("y1", i * spacing - boxHeight)
+          .attr("y2", i * spacing)
           .style("stroke", "black")
           .style("fill", "none")
           .style(
             "transform",
-            `translate(${-scaleLength / 2}px,${yTranslate}px)`
+            `translate(${-scaleLength / 2}px,${yTranslate + boxHeight}px)`
           );
 
         //lower quartile
@@ -543,7 +577,7 @@ const TreeVis: React.FC<VisProps> = ({ data }) => {
           .style("fill", "none")
           .style(
             "transform",
-            `translate(${-scaleLength / 2}px,${yTranslate}px)`
+            `translate(${-scaleLength / 2}px,${yTranslate + boxHeight}px)`
           );
 
         //min
@@ -557,7 +591,7 @@ const TreeVis: React.FC<VisProps> = ({ data }) => {
           .style("fill", "none")
           .style(
             "transform",
-            `translate(${-scaleLength / 2}px,${yTranslate}px)`
+            `translate(${-scaleLength / 2}px,${yTranslate + boxHeight}px)`
           );
 
         //max
@@ -571,20 +605,21 @@ const TreeVis: React.FC<VisProps> = ({ data }) => {
           .style("fill", "none")
           .style(
             "transform",
-            `translate(${-scaleLength / 2}px,${yTranslate}px)`
+            `translate(${-scaleLength / 2}px,${yTranslate + boxHeight}px)`
           );
 
-        //pokemon position
+        //labels
         statGroup
-          .append("circle")
-          .attr("cx", statScale(pokemonStats[i]))
-          .attr("cy", i * spacing)
-          .attr("r", 2)
-          .style("stroke", "black")
-          .style("fill", "black")
+          .append("text")
+          .text(statLabels[i])
+          .attr("x", 0)
+          .attr("y", i * spacing)
+          .style("font-weight", "bold")
           .style(
             "transform",
-            `translate(${-scaleLength / 2}px,${yTranslate}px)`
+            `translate(${-scaleLength / 2 - Offsets[i]}px,${
+              yTranslate + boxHeight - 2
+            }px)`
           );
       });
     }

@@ -2,7 +2,7 @@ import { combineReducers } from "redux";
 
 type action = {
   type: string;
-  payload: string | null;
+  payload: string | null | string[];
 };
 
 const selectedPokemonReducer = (pokemon = null, action: action) => {

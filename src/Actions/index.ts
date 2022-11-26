@@ -1,4 +1,4 @@
-import { rawDataEntry } from "../Utils/types";
+import { combatStatsObject, rawDataEntry } from "../Utils/types";
 
 export const selectPokemon = (pokemon: rawDataEntry | null = null) => {
   //return pokemon
@@ -6,6 +6,10 @@ export const selectPokemon = (pokemon: rawDataEntry | null = null) => {
     type: "POKEMON_SELECTED",
     payload: pokemon,
   };
+};
+
+export const updateStrengthArray = (strengthsArray: combatStatsObject) => {
+  return { type: "UPDATE_COMBAT_OBJECT", payload: strengthsArray };
 };
 
 export const deselectPokemon = () => {

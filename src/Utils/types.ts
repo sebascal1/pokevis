@@ -49,3 +49,9 @@ export type rawDataEntry = {
 export type VisProps = {
   data: rawDataEntry[];
 };
+
+//combatStats type
+export type combatStatsObject = {
+  strengths: string[];
+  weakness: string[];
+};
