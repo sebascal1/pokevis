@@ -78,7 +78,7 @@ const PokemonInfo = () => {
       findAndReplace(weaknessArray, "fight", "fighting");
       findSelectedPokemonTypeAndDelete(strengthsArray);
 
-      let combatObject: combatStatsObject = {
+      const combatObject: combatStatsObject = {
         strengths: strengthsArray,
         weakness: weaknessArray,
       };
@@ -111,6 +111,9 @@ const PokemonInfo = () => {
   const getStrengthsOrWeaknesses = (type: attributeType) => {
     let filteredAttributes = getAttributes(type);
 
+    if (type == attributeType.strengths)
+      findSelectedPokemonTypeAndDelete(filteredAttributes);
+
     return filteredAttributes?.map((entry, i) => {
       return (
         <li style={{ display: "inline-block" }} key={i}>
@@ -127,6 +130,19 @@ const PokemonInfo = () => {
         </li>
       );
     });
+  };
+
+  const determinePokeball = (captureRate: number) => {
+    console.log(captureRate);
+    console.log(captureRate < 10);
+    if (captureRate < 10) {
+      return "Master Ball";
+    } else if (captureRate < 100) {
+      return "Ultra Ball";
+    } else if (captureRate < 200) {
+      return "Great Ball";
+    }
+    return "Poke Ball";
   };
 
   const getAttributes = (type: attributeType): string[] => {
@@ -165,13 +181,13 @@ const PokemonInfo = () => {
       }}
     >
       <section className={"strengths display"} style={{ display: "flex" }}>
-        <p>Strengths:</p>
+        <p>Strong Against:</p>
         <ul style={{ padding: "0", margin: "0" }}>
           {getStrengthsOrWeaknesses(attributeType.strengths)}
         </ul>
       </section>
       <section className={"strengths display"} style={{ display: "flex" }}>
-        <p>Weaknesses:</p>
+        <p>Weak Against:</p>
         <ul style={{ padding: "0", margin: "0" }}>
           {getStrengthsOrWeaknesses(attributeType.weaknesses)}
         </ul>
@@ -179,6 +195,13 @@ const PokemonInfo = () => {
       <section className="pokemon-text" style={{ display: "block" }}>
         <p>{pokeText}</p>
       </section>
+      {selectedPokemon && (
+        <section className={"pokemon-capture"} style={{ display: "block" }}>
+          <p>{`Recommended ball for capturing: ${determinePokeball(
+            parseInt(selectedPokemon.capture_rate)
+          )}`}</p>
+        </section>
+      )}
     </article>
   );
 };
