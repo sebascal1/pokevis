@@ -1,16 +1,18 @@
 import * as d3 from "d3";
 import React, { useEffect, useRef, useState } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 
 import { rawDataEntry, VisProps } from "../Utils/types";
 import { colourTypeScale, pokemonTypes } from "../Utils";
 import PokedexEntry from "./pokedexEntry";
 import { HierarchyNode } from "d3";
 import { selectPokemon } from "../Actions";
+import { RootState } from "../rootReducer";
 
 const TreeVis: React.FC<VisProps> = ({ data }) => {
   const [hoveredPokemonData, setHoveredPokemonData] =
     useState<HierarchyNode<rawDataEntry> | null>(null);
+  const combatStats = useSelector((state: RootState) => state.combatStats);
 
   const svgRef = useRef<SVGSVGElement | null>(null);
   const width =
@@ -192,6 +194,19 @@ const TreeVis: React.FC<VisProps> = ({ data }) => {
           .attr("offset", (d) => `${d * 100}%`);
       }
     });
+
+    //def for setting the glow effect
+    //Container for the gradients
+
+    //Filter for the outside glow
+    const filter = defs.append("filter").attr("id", "glow");
+    filter
+      .append("feGaussianBlur")
+      .attr("stdDeviation", "1.5")
+      .attr("result", "coloredBlur");
+    const feMerge = filter.append("feMerge");
+    feMerge.append("feMergeNode").attr("in", "coloredBlur");
+    feMerge.append("feMergeNode").attr("in", "SourceGraphic");
 
     //set the svg attributes
     svg
@@ -379,6 +394,35 @@ const TreeVis: React.FC<VisProps> = ({ data }) => {
     //     .text((d, i) => (d.depth < 3 ? "" : L[i]))
     //     .style("background", "#def1f1");
 
+    //Apply to your element(s)
+    node
+      .append("circle")
+      .attr("r", (d) => (d.children ? 0 : 3.5))
+      .attr("cx", 0)
+      .attr("cy", 0)
+      .style("fill", "none")
+      .style("stroke", (d: any) => {
+        const { strengths, weakness } = combatStats;
+        if (strengths.includes(d.data.type1)) {
+          return "green";
+        } else if (weakness.includes(d.data.type1)) {
+          return "red";
+        } else {
+          return "none";
+        }
+      })
+      .style("filter", (d: any) => {
+        const { strengths, weakness } = combatStats;
+        if (
+          strengths.includes(d.data.type1) ||
+          weakness.includes(d.data.type1)
+        ) {
+          return "url(#glow)";
+        }
+
+        return "";
+      });
+
     node
       .append("circle")
       .attr("fill", (d: HierarchyNode<any>) =>
@@ -392,7 +436,6 @@ const TreeVis: React.FC<VisProps> = ({ data }) => {
       .on("mouseenter", function (e, datum: HierarchyNode<any>) {
         //make sure the events only occur for the pokemon circles (the leaves)
         if (datum.depth !== 3) return;
-        console.log(datum);
         setHoveredPokemonData(datum as HierarchyNode<rawDataEntry>);
         dispatch(selectPokemon(datum.data));
         d3.select(this).attr("r", 5);

@@ -71,17 +71,40 @@ const PokemonInfo = () => {
     };
 
     const setCombatStats = () => {
-      let combatObject: combatStatsObject = {
-        strengths: getAttributes(attributeType.strengths),
-        weakness: getAttributes(attributeType.weaknesses),
-      };
+      const strengthsArray = getAttributes(attributeType.strengths);
+      const weaknessArray = getAttributes(attributeType.weaknesses);
 
+      findAndReplace(strengthsArray, "fight", "fighting");
+      findAndReplace(weaknessArray, "fight", "fighting");
+      findSelectedPokemonTypeAndDelete(strengthsArray);
+
+      let combatObject: combatStatsObject = {
+        strengths: strengthsArray,
+        weakness: weaknessArray,
+      };
       dispatch(updateStrengthArray(combatObject));
     };
 
     getData();
     setCombatStats();
   }, [selectedPokemon]);
+
+  //find a specific type in a given array and replace it
+  const findAndReplace = (
+    arr: string[],
+    stringToFind: string,
+    replacement: string
+  ) => {
+    //check for fight stat and change it to fighting
+    const indexNumber = arr.findIndex((type) => type === stringToFind);
+    if (indexNumber > -1) arr[indexNumber] = replacement;
+  };
+
+  const findSelectedPokemonTypeAndDelete = (arr: string[]) => {
+    const type = selectedPokemon?.type1;
+    const indexNumber = arr.findIndex((entry) => entry === type);
+    arr.splice(indexNumber, 1);
+  };
 
   //go through the selectedPokemon data entry, pick out the data related to attack attributes and extract the types
   //the pokemon is strong and weak against depending on the type
