@@ -23,7 +23,6 @@ const TreeVis: React.FC<VisProps> = ({ data }) => {
   let outerRadius = innerRadius + donutThickness; // outer radius of pie, in pixels
   let innerRadius2 = radius / 1.4;
   let outerRadius2 = innerRadius2 + donutThickness; // outer radius of pie, in pixels
-  let innerRadius3 = radius / 1.1;
   const mobileView = window.innerWidth < 700;
 
   const r = 2; // radius of nodes
@@ -31,8 +30,8 @@ const TreeVis: React.FC<VisProps> = ({ data }) => {
   const stroke = "#555"; // stroke for links
   const strokeWidth = 2; // stroke width for links
   const strokeOpacity = 0.4; // stroke opacity for linkss
-  const halo = "#fff"; // color of label halo
-  const haloWidth = 3; // padding around the labels
+  //const halo = "#fff"; // color of label halo
+  //const haloWidth = 3; // padding around the labels
   const dispatch = useDispatch();
   const filteredData = data.filter((d) => parseInt(d.pokedex_number) < 152);
 
@@ -111,17 +110,15 @@ const TreeVis: React.FC<VisProps> = ({ data }) => {
       .scaleLinear()
       // @ts-ignore
       .domain(d3.extent(data, (d) => d.base_total))
-      .range([innerRadius3, innerRadius3 + 30]);
-
-    console.log(dataObj);
+      .range([0, 30]);
 
     //create the root object for the tree data
     const root = partition(dataObj);
 
     // Compute labels and titles.
-    const descendants = root.descendants();
+    // const descendants = root.descendants();
     // @ts-ignore
-    const L: string[] = descendants.map((d) => d.data?.name) as string[];
+    //const L: string[] = descendants.map((d) => d.data?.name) as string[];
 
     //create the Arcs for the inner and outer circles in order to group pokemon of similar types together
     const arc = d3
@@ -134,17 +131,9 @@ const TreeVis: React.FC<VisProps> = ({ data }) => {
       // @ts-ignore
       .endAngle((d) => {
         // @ts-ignore
-        if (d.depth === 3) return d.x0 + Math.PI / 150;
-        // @ts-ignore
         return d.x1;
       })
-      .padAngle((d) => {
-        // @ts-ignore
-        if (d.depth === 3) {
-          return d.padAngle;
-        }
-        return 1 / radius;
-      })
+      .padAngle(1 / radius)
       .padRadius(radius)
       //set the innerRadius of the tree arc depending on the level
       // @ts-ignore
@@ -156,8 +145,6 @@ const TreeVis: React.FC<VisProps> = ({ data }) => {
         } else if (d.depth === 2) {
           return innerRadius2;
           // @ts-ignore
-        } else if (d.depth === 3) {
-          return innerRadius3;
         }
       })
       //set the outerRadius of the tree arc depending on the level
@@ -170,9 +157,6 @@ const TreeVis: React.FC<VisProps> = ({ data }) => {
         } else if (d.depth === 2) {
           return outerRadius2;
           // @ts-ignore
-        } else if (d.depth === 3) {
-          // @ts-ignore
-          return baseStatScale(d.data.base_total);
         }
       })
       //set the corner radius
@@ -294,7 +278,7 @@ const TreeVis: React.FC<VisProps> = ({ data }) => {
       //when the mouse enter an arc, highlight the subset of pokemon (and secondary types if it is an inner arc) that belong to that arc
       // @ts-ignore
       .on("mouseenter", function (e, datum: HierarchyNode<rawDataEntry>) {
-        console.log(datum);
+        //console.log(datum);
         //mute all paths that dont belong to the subset
         d3.selectAll("#treePath")
           .filter((d: any) => {
@@ -376,24 +360,24 @@ const TreeVis: React.FC<VisProps> = ({ data }) => {
         (d: any) => `rotate(${(d.x * 180) / Math.PI - 90}) translate(${d.y},0)`
       );
 
-    if (L)
-      node
-        .append("g")
-        .append("text")
-        .attr("transform", (d: any) => `rotate(${d.x >= Math.PI ? 180 : 0})`)
-        .attr("dy", "0.32em")
-        .attr("x", (d: any) => (d.x < Math.PI && !d.children ? 12 : -12))
-        .attr("text-anchor", (d: any) =>
-          d.x < Math.PI && !d.children ? "start" : "end"
-        )
-        .attr("paint-order", "stroke")
-        .attr("stroke", halo)
-        .attr("stroke-width", haloWidth)
-        .style("font-size", (d: HierarchyNode<any>) =>
-          d.data?.name === hoveredPokemonData?.data.name ? "15px" : "5px"
-        )
-        .text((d, i) => (d.depth < 3 ? "" : L[i]))
-        .style("background", "#def1f1");
+    // if (L)
+    //   node
+    //     .append("g")
+    //     .append("text")
+    //     .attr("transform", (d: any) => `rotate(${d.x >= Math.PI ? 180 : 0})`)
+    //     .attr("dy", "0.32em")
+    //     .attr("x", (d: any) => (d.x < Math.PI && !d.children ? 12 : -12))
+    //     .attr("text-anchor", (d: any) =>
+    //       d.x < Math.PI && !d.children ? "start" : "end"
+    //     )
+    //     .attr("paint-order", "stroke")
+    //     .attr("stroke", halo)
+    //     .attr("stroke-width", haloWidth)
+    //     .style("font-size", (d: HierarchyNode<any>) =>
+    //       d.data?.name === hoveredPokemonData?.data.name ? "15px" : "5px"
+    //     )
+    //     .text((d, i) => (d.depth < 3 ? "" : L[i]))
+    //     .style("background", "#def1f1");
 
     node
       .append("circle")
@@ -408,6 +392,7 @@ const TreeVis: React.FC<VisProps> = ({ data }) => {
       .on("mouseenter", function (e, datum: HierarchyNode<any>) {
         //make sure the events only occur for the pokemon circles (the leaves)
         if (datum.depth !== 3) return;
+        console.log(datum);
         setHoveredPokemonData(datum as HierarchyNode<rawDataEntry>);
         dispatch(selectPokemon(datum.data));
         d3.select(this).attr("r", 5);
@@ -437,6 +422,25 @@ const TreeVis: React.FC<VisProps> = ({ data }) => {
       .on("mouseout", function () {
         dispatch(selectPokemon(null));
         d3.select(this).attr("r", r);
+      });
+
+    node
+      .append("rect")
+      .attr("id", "baseStatTotal")
+      .attr("transform", (d: any) => `rotate(${d.x >= Math.PI ? -90 : -90})`)
+      .attr("y", "6px")
+      .attr("x", "-2px")
+      .attr("width", (d) => {
+        if (d.depth < 3) return "0px";
+        return "4px";
+      })
+      .attr("height", (d: any) => {
+        if (d.depth < 3) return "0px";
+        return `${baseStatScale(d.data.base_total)}px`;
+      })
+      .style("rx", "2px")
+      .on("mouseenter", function (d, datum) {
+        console.log(datum);
       });
 
     //a circle in the inner part of the vis in order to hide the origin of the tree
