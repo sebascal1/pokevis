@@ -87,6 +87,7 @@ const PokemonInfo = () => {
 
     getData();
     setCombatStats();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedPokemon]);
 
   //find a specific type in a given array and replace it
@@ -111,7 +112,7 @@ const PokemonInfo = () => {
   const getStrengthsOrWeaknesses = (type: attributeType) => {
     let filteredAttributes = getAttributes(type);
 
-    if (type == attributeType.strengths)
+    if (type === attributeType.strengths)
       findSelectedPokemonTypeAndDelete(filteredAttributes);
 
     return filteredAttributes?.map((entry, i) => {
