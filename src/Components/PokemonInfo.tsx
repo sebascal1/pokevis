@@ -28,6 +28,7 @@ const PokemonInfo = () => {
   const selectedPokemon = useSelector(
     (state: RootState) => state.selectedPokemon
   );
+  const combatStats = useSelector((state: RootState) => state.combatStats);
   const [pokeText, setPokeText] = useState("");
   const dispatch = useDispatch();
 
@@ -165,6 +166,26 @@ const PokemonInfo = () => {
     return filteredAttributes.map((entry) => entry[0].split("_")[1]);
   };
 
+  const determineStatusEffects = (weaknessArr: string[]) => {
+    const statusTypes = ["fire", "electric", "ice", "poison"];
+
+    const statusEffects = {
+      fire: "burn, ",
+      electric: "paralyze, ",
+      ice: "freeze, ",
+      poison: "poison, ",
+    };
+
+    return weaknessArr.reduce((prevString, weakness) => {
+      if (statusTypes.includes(weakness)) {
+        // @ts-ignore
+        return (prevString += statusEffects[weakness]);
+      } else {
+        return prevString;
+      }
+    }, "");
+  };
+
   return (
     <article
       className="pokemon-info"
@@ -200,6 +221,9 @@ const PokemonInfo = () => {
         <section className={"pokemon-capture"} style={{ display: "block" }}>
           <p>{`Recommended ball for capturing: ${determinePokeball(
             parseInt(selectedPokemon.capture_rate)
+          )}`}</p>
+          <p>{`Recommended Status Effects to increase capture: ${determineStatusEffects(
+            combatStats.weakness
           )}`}</p>
         </section>
       )}
