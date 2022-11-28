@@ -202,24 +202,33 @@ const PokemonInfo = () => {
         borderRadius: "10px",
       }}
     >
+      <section
+        className="pokemon-text"
+        style={{ display: "block", margin: "1rem 0" }}
+      >
+        <p>{pokeText}</p>
+      </section>
+
       <section className={"strengths display"} style={{ display: "flex" }}>
-        <p>Strong Against:</p>
+        <p style={{ margin: 0 }}>Strong Against:</p>
         <ul style={{ padding: "0", margin: "0" }}>
           {getStrengthsOrWeaknesses(attributeType.strengths)}
         </ul>
       </section>
       <section className={"strengths display"} style={{ display: "flex" }}>
-        <p>Weak Against:</p>
+        <p style={{ marginBlockEnd: "0" }}>Weak Against:</p>
         <ul style={{ padding: "0", margin: "0" }}>
           {getStrengthsOrWeaknesses(attributeType.weaknesses)}
         </ul>
       </section>
-      <section className="pokemon-text" style={{ display: "block" }}>
-        <p>{pokeText}</p>
-      </section>
       {selectedPokemon && (
-        <section className={"pokemon-capture"} style={{ display: "block" }}>
-          <p>{`Recommended ball for capturing: ${determinePokeball(
+        <section
+          className={"pokemon-capture"}
+          style={{ display: "block", margin: "1rem 0" }}
+        >
+          <p
+            style={{ marginBlockEnd: "0" }}
+          >{`Recommended ball for capturing: ${determinePokeball(
             parseInt(selectedPokemon.capture_rate)
           )}`}</p>
           <p>{`Recommended Status Effects to increase capture: ${determineStatusEffects(
