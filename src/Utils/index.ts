@@ -19,6 +19,12 @@ export const colourTypeScale = {
   fairy: "#f0b6bc",
 };
 
+export const baseTotalColors = {
+  high: "#00b4a1",
+  medium: "#00768d",
+  low: "#012f61",
+};
+
 export const capitalize = (s: string): string => {
   return s[0].toUpperCase() + s.slice(1);
 };

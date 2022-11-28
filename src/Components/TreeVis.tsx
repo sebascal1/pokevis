@@ -3,7 +3,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 import { rawDataEntry, VisProps } from "../Utils/types";
-import { colourTypeScale, pokemonTypes } from "../Utils";
+import { baseTotalColors, colourTypeScale, pokemonTypes } from "../Utils";
 import PokedexEntry from "./pokedexEntry";
 import { HierarchyNode } from "d3";
 import { selectPokemon } from "../Actions";
@@ -107,11 +107,13 @@ const TreeVis: React.FC<VisProps> = ({ data }) => {
 
     //make a data object with a parent root node to which it's children are the previously generated data
     let dataObj = { name: "root", children: dataArr };
+    // @ts-ignore
+    console.log(d3.extent(d3.extent(filteredData, (d) => d.base_total)));
 
     const baseStatScale = d3
       .scaleLinear()
       // @ts-ignore
-      .domain(d3.extent(data, (d) => d.base_total))
+      .domain([0, d3.extent(filteredData, (d) => d.base_total)[1]])
       .range([0, 30]);
 
     //create the root object for the tree data
@@ -438,7 +440,6 @@ const TreeVis: React.FC<VisProps> = ({ data }) => {
         if (datum.depth !== 3) return;
         setHoveredPokemonData(datum as HierarchyNode<rawDataEntry>);
         dispatch(selectPokemon(datum.data));
-        d3.select(this).attr("r", 5);
 
         svg
           .selectAll("#treePath")
@@ -461,6 +462,29 @@ const TreeVis: React.FC<VisProps> = ({ data }) => {
             );
           })
           .style("opacity", 0.05);
+
+        // @ts-ignore
+        svg.selectAll("#pokeball").attr("opacity", (d: any) => {
+          if (
+            !combatStats.strengths.includes(d.data.type1) &&
+            !combatStats.weakness.includes(d.data.type1)
+          )
+            return 0.05;
+        });
+
+        // @ts-ignore
+        svg.selectAll("#baseStatTotal").attr("opacity", (d: any) => {
+          if (d.data.name === datum.data.name) return 1;
+
+          if (
+            !combatStats.strengths.includes(d.data.type1) &&
+            !combatStats.weakness.includes(d.data.type1)
+          )
+            return 0.05;
+        });
+
+        d3.select(this).attr("opacity", 5);
+        d3.select(this).attr("r", 5);
       })
       .on("mouseout", function () {
         dispatch(selectPokemon(null));
@@ -482,6 +506,16 @@ const TreeVis: React.FC<VisProps> = ({ data }) => {
         return `${baseStatScale(d.data.base_total)}px`;
       })
       .style("rx", "2px")
+      .attr("fill", (d: any) => {
+        const baseTotal = d.data.base_total;
+        if (baseTotal <= 390) {
+          return baseTotalColors["low"];
+        } else if (baseTotal <= 585) {
+          return baseTotalColors["medium"];
+        } else {
+          return baseTotalColors["high"];
+        }
+      })
       .on("mouseenter", function (d, datum) {
         console.log(datum);
       });

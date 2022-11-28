@@ -1,6 +1,8 @@
 //declare general types to be used throughout the application
 
 //raw data format for each entry in pokemon.csv
+import React from "react";
+
 export type rawDataEntry = {
   abilities: string;
   against_bug: string;
@@ -48,6 +50,12 @@ export type rawDataEntry = {
 //props for the treeVis component
 export type VisProps = {
   data: rawDataEntry[];
+};
+
+//for sidebar
+export type SidebarProps = {
+  active: boolean;
+  setActive: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 //combatStats type

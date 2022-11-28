@@ -5,10 +5,12 @@ import { rawDataEntry } from "./Utils/types";
 import TreeVis from "./Components/TreeVis";
 import Map from "./Components/Map";
 import PokemonInfo from "./Components/PokemonInfo";
+import Sidebar from "./Components/Sidebar";
 
 function App() {
   //set the data as a state entry to be able to use throughout the app
   const [data, setData] = useState<Promise<void> | null | rawDataEntry[]>(null);
+  const [sidebarActive, setActiveBar] = useState(true);
 
   //get the data upon loading the app for the first time
   useEffect(() => {
@@ -30,11 +32,24 @@ function App() {
         <main className="main">
           {/*Display the Map component*/}
           <Map />
-
           <PokemonInfo />
-
           {/*If the data has been loaded successfully, display treeVis component and pass the loaded data*/}
           {data !== null && <TreeVis data={data as rawDataEntry[]} />}
+          <button
+            style={{
+              position: "absolute",
+              right: "4rem",
+              top: "6rem",
+              borderRadius: "50%",
+              height: "3rem",
+              width: "3rem",
+              border: "1px solid black",
+            }}
+            onClick={() => setActiveBar(true)}
+          >
+            ?
+          </button>
+          <Sidebar active={sidebarActive} setActive={setActiveBar} />
         </main>
         <footer></footer>
       </article>
