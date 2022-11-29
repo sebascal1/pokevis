@@ -35,7 +35,7 @@ function App() {
           <PokemonInfo />
           {/*If the data has been loaded successfully, display treeVis component and pass the loaded data*/}
           {data !== null && <TreeVis data={data as rawDataEntry[]} />}
-          <button
+          <div
             style={{
               position: "absolute",
               right: "4rem",
@@ -44,11 +44,23 @@ function App() {
               height: "3rem",
               width: "3rem",
               border: "1px solid black",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              backgroundColor: "#35c6ec",
             }}
+
             //onClick={() => setActiveBar(true)}
           >
-            ?
-          </button>
+            <a
+              style={{ color: "white" }}
+              href={
+                "https://drive.google.com/file/d/13TA6Z8mnwtP2uZM5hTsWIDQ-hMoC66rn/view?usp=sharing"
+              }
+            >
+              ?
+            </a>
+          </div>
           {/*<Sidebar active={sidebarActive} setActive={setActiveBar} />*/}
         </main>
         <footer></footer>

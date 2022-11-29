@@ -409,7 +409,7 @@ const TreeVis: React.FC<VisProps> = ({ data }) => {
       .style("stroke", (d: any) => {
         const { strengths, weakness } = combatStats;
         if (strengths.includes(d.data.type1)) {
-          return "green";
+          return "#0154a5";
         } else if (weakness.includes(d.data.type1)) {
           return "red";
         } else {
