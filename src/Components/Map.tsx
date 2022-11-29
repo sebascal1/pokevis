@@ -13,7 +13,7 @@ const Map = () => {
       : 0.5 * window.innerWidth * 0.95;
   const imageHeight = imageWidth * 0.6;
   // @ts-ignore
-  const selectedPokemon = useSelector((state) => state.selectedPokemon?.name);
+  const selectedPokemon = useSelector((state) => state.selectedPokemon);
   const [locations, setLocation] = useState<any[]>([]);
   const getRoutes = (entry: string) => {
     if (entry.includes("sea")) {
@@ -24,7 +24,10 @@ const Map = () => {
   };
 
   useEffect(() => {
-    if (selectedPokemon === null || selectedPokemon === undefined) return;
+    if (selectedPokemon === null || selectedPokemon === undefined) {
+      setLocation([]);
+      return;
+    }
     const allowedGames = [
       "red",
       "blue",
@@ -35,7 +38,7 @@ const Map = () => {
     ];
     const getData = async () => {
       let locs = await axios.get(
-        `https://pokeapi.co/api/v2/pokemon/${selectedPokemon.toLowerCase()}/encounters`
+        `https://pokeapi.co/api/v2/pokemon/${selectedPokemon?.name.toLowerCase()}/encounters`
       );
       //setLocation(locs.data);
       const filteredLocs = locs.data.filter(
@@ -99,6 +102,7 @@ const Map = () => {
     <section
       ref={containerRef}
       style={{
+        position: "relative",
         display: "flex",
         width: "95%",
         height: "96%",
@@ -111,20 +115,38 @@ const Map = () => {
     >
       <div
         style={{
+          position: "absolute",
+          backgroundColor: "rgb(255,255,255)",
+          width: `100%`,
+          height: `${
+            window.innerWidth < 700 ? imageHeight * 0.9 + "px" : "100%"
+          }`,
+        }}
+      ></div>
+      <div
+        style={{
+          position: "absolute",
+          width: `100%`,
+          height: `${
+            window.innerWidth < 700 ? imageHeight * 0.9 + "px" : "100%"
+          }`,
+          backgroundImage: `url(${kantoMap})`,
+          backgroundRepeat: "no-repeat",
+          backgroundSize: "100% 100%",
+          backgroundPosition: "center",
+          opacity: `${selectedPokemon === null ? 1 : 0.85}`,
+        }}
+      ></div>
+      <div
+        style={{
           display: "grid",
-          backgroundColor: "rgb(50,50,50)",
-          //width: `${imageWidth}px`,
-          // height: `${imageHeight}px`,
+          position: "absolute",
           width: `100%`,
           height: `${
             window.innerWidth < 700 ? imageHeight * 0.9 + "px" : "100%"
           }`,
           gridTemplateRows: "repeat(60, 1fr)",
           gridTemplateColumns: "repeat(100, 1fr)",
-          backgroundImage: `url(${kantoMap})`,
-          backgroundRepeat: "no-repeat",
-          backgroundSize: "100% 100%",
-          backgroundPosition: "center",
         }}
       >
         {renderRoutes()}

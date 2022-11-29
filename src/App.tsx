@@ -5,12 +5,12 @@ import { rawDataEntry } from "./Utils/types";
 import TreeVis from "./Components/TreeVis";
 import Map from "./Components/Map";
 import PokemonInfo from "./Components/PokemonInfo";
-import Sidebar from "./Components/Sidebar";
+//import Sidebar from "./Components/Sidebar";
 
 function App() {
   //set the data as a state entry to be able to use throughout the app
   const [data, setData] = useState<Promise<void> | null | rawDataEntry[]>(null);
-  const [sidebarActive, setActiveBar] = useState(true);
+  // const [sidebarActive, setActiveBar] = useState(true);
 
   //get the data upon loading the app for the first time
   useEffect(() => {
@@ -45,11 +45,11 @@ function App() {
               width: "3rem",
               border: "1px solid black",
             }}
-            onClick={() => setActiveBar(true)}
+            //onClick={() => setActiveBar(true)}
           >
             ?
           </button>
-          <Sidebar active={sidebarActive} setActive={setActiveBar} />
+          {/*<Sidebar active={sidebarActive} setActive={setActiveBar} />*/}
         </main>
         <footer></footer>
       </article>

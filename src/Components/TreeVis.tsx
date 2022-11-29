@@ -6,14 +6,17 @@ import { rawDataEntry, VisProps } from "../Utils/types";
 import { baseTotalColors, colourTypeScale, pokemonTypes } from "../Utils";
 import PokedexEntry from "./pokedexEntry";
 import { HierarchyNode } from "d3";
-import { selectPokemon } from "../Actions";
+import { selectPokemon, UpdateClicked } from "../Actions";
 import { RootState } from "../rootReducer";
 
 const TreeVis: React.FC<VisProps> = ({ data }) => {
-  const [hoveredPokemonData, setHoveredPokemonData] =
-    useState<HierarchyNode<rawDataEntry> | null>(null);
+  const [pokemon, setPokemon] = useState<rawDataEntry | null>(null);
+  //const [clicked, toggleClick] = useState(false);
   const combatStats = useSelector((state: RootState) => state.combatStats);
-
+  const selectedPokemon = useSelector(
+    (state: RootState) => state.selectedPokemon
+  );
+  const clicked = useSelector((state: RootState) => state.clicked);
   const svgRef = useRef<SVGSVGElement | null>(null);
   const width =
     window.innerWidth < 700
@@ -36,6 +39,7 @@ const TreeVis: React.FC<VisProps> = ({ data }) => {
   //const haloWidth = 3; // padding around the labels
   const dispatch = useDispatch();
   const filteredData = data.filter((d) => parseInt(d.pokedex_number) < 152);
+  const chosenPokemon = pokemon !== null ? pokemon : selectedPokemon;
 
   //when the component loads, or the selected pokemon changes, run the following useEffect hook
   useEffect(() => {
@@ -108,8 +112,6 @@ const TreeVis: React.FC<VisProps> = ({ data }) => {
     //make a data object with a parent root node to which it's children are the previously generated data
     let dataObj = { name: "root", children: dataArr };
     // @ts-ignore
-    console.log(d3.extent(d3.extent(filteredData, (d) => d.base_total)));
-
     const baseStatScale = d3
       .scaleLinear()
       // @ts-ignore
@@ -295,7 +297,7 @@ const TreeVis: React.FC<VisProps> = ({ data }) => {
       //when the mouse enter an arc, highlight the subset of pokemon (and secondary types if it is an inner arc) that belong to that arc
       // @ts-ignore
       .on("mouseenter", function (e, datum: HierarchyNode<rawDataEntry>) {
-        //console.log(datum);
+        if (clicked) return;
         //mute all paths that dont belong to the subset
         d3.selectAll("#treePath")
           .filter((d: any) => {
@@ -361,6 +363,7 @@ const TreeVis: React.FC<VisProps> = ({ data }) => {
       })
       //on mouse leave event, reset everything to default
       .on("mouseleave", function () {
+        if (clicked) return;
         svg.selectAll("#donutArc").style("opacity", 1);
         d3.selectAll("#treePath").style("stroke-opacity", strokeOpacity);
         svg.selectAll("#pokeball").style("opacity", 1);
@@ -425,6 +428,7 @@ const TreeVis: React.FC<VisProps> = ({ data }) => {
         return "";
       });
 
+    // @ts-ignore
     node
       .append("circle")
       .attr("fill", (d: HierarchyNode<any>) =>
@@ -432,15 +436,25 @@ const TreeVis: React.FC<VisProps> = ({ data }) => {
       )
       .attr("id", "pokeball")
       .attr("class", "pokemonCircle")
-      .attr("r", (d) => (d.children ? 0 : r))
+      .attr("r", (d: any) =>
+        d.children
+          ? 0
+          : d.data.name === chosenPokemon?.name ||
+            d.data.name === selectedPokemon?.name
+          ? 5
+          : r
+      )
       .style("fill", `#url("https://github.com/favicon.ico")`)
 
       .on("mouseenter", function (e, datum: HierarchyNode<any>) {
         //make sure the events only occur for the pokemon circles (the leaves)
         if (datum.depth !== 3) return;
-        setHoveredPokemonData(datum as HierarchyNode<rawDataEntry>);
-        dispatch(selectPokemon(datum.data));
-
+        if (clicked) {
+          setPokemon(datum.data);
+        } else {
+          console.log("entering dispath");
+          dispatch(selectPokemon(datum.data));
+        }
         svg
           .selectAll("#treePath")
           .filter((d: any) => {
@@ -487,8 +501,26 @@ const TreeVis: React.FC<VisProps> = ({ data }) => {
         d3.select(this).attr("r", 5);
       })
       .on("mouseout", function () {
-        dispatch(selectPokemon(null));
-        d3.select(this).attr("r", r);
+        if (!clicked) {
+          dispatch(selectPokemon(null));
+          d3.select(this).attr("r", r);
+        }
+        setPokemon(null);
+      })
+      .on("click", function (d, datum: any) {
+        // if (pokemon === datum.data.name) setPokemon(null);
+        // else setPokemon(datum.data.name);
+        if (clicked) {
+          if (datum.data.name === selectedPokemon?.name) {
+            dispatch(UpdateClicked(false));
+          } else {
+            dispatch(selectPokemon(datum.data));
+          }
+        } else {
+          dispatch(UpdateClicked(true));
+        }
+
+        if (!clicked) setPokemon(null);
       });
 
     node
@@ -515,9 +547,6 @@ const TreeVis: React.FC<VisProps> = ({ data }) => {
         } else {
           return baseTotalColors["high"];
         }
-      })
-      .on("mouseenter", function (d, datum) {
-        console.log(datum);
       });
 
     //a circle in the inner part of the vis in order to hide the origin of the tree
@@ -574,13 +603,13 @@ const TreeVis: React.FC<VisProps> = ({ data }) => {
 
     let statScale = d3.scaleLinear().domain([0, 255]).range([0, scaleLength]);
 
-    if (hoveredPokemonData !== null && !mobileView) {
+    if (chosenPokemon !== null && !mobileView) {
       let pokemonStats = [
-        attackAccessor(hoveredPokemonData?.data),
-        defenseAccessor(hoveredPokemonData?.data),
-        spAttackAccessor(hoveredPokemonData?.data),
-        spDefenseAccessor(hoveredPokemonData?.data),
-        speedAccessor(hoveredPokemonData?.data),
+        attackAccessor(chosenPokemon),
+        defenseAccessor(chosenPokemon),
+        spAttackAccessor(chosenPokemon),
+        spDefenseAccessor(chosenPokemon),
+        speedAccessor(chosenPokemon),
       ];
 
       statsArr.forEach((stat: any, i: number) => {
@@ -706,7 +735,10 @@ const TreeVis: React.FC<VisProps> = ({ data }) => {
     }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [hoveredPokemonData]);
+  }, [clicked, chosenPokemon, combatStats]);
+
+  console.log(`value of clicked ${clicked}`);
+  console.log(pokemon);
 
   return (
     <section
@@ -730,11 +762,7 @@ const TreeVis: React.FC<VisProps> = ({ data }) => {
         }}
       />
       <PokedexEntry
-        data={
-          hoveredPokemonData === null
-            ? null
-            : (hoveredPokemonData?.data as rawDataEntry)
-        }
+        data={pokemon !== null ? pokemon : selectedPokemon}
         innerRadius={innerRadius}
         // radius={radius}
       />

@@ -64,7 +64,7 @@ const PokemonInfo = () => {
     const getData = async () => {
       if (selectedPokemon === null || selectedPokemon === undefined) return;
       const data = await axios.get(
-        `https://pokeapi.co/api/v2/pokemon-species/${selectedPokemon.name.toLowerCase()}/`
+        `https://pokeapi.co/api/v2/pokemon-species/${selectedPokemon.pokedex_number}/`
       );
 
       // @ts-ignore
@@ -135,8 +135,6 @@ const PokemonInfo = () => {
   };
 
   const determinePokeball = (captureRate: number) => {
-    console.log(captureRate);
-    console.log(captureRate < 10);
     if (captureRate < 10) {
       return "Master Ball";
     } else if (captureRate < 100) {
