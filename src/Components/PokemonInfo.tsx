@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { Fragment, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
 
@@ -184,6 +184,15 @@ const PokemonInfo = () => {
     }, "");
   };
 
+  const renderIntroText = () => {
+    return (
+      <Fragment>
+        <p>Hover over a ball to show a pokemon's info</p>
+        <p>Click on a pokemon to set the info</p>
+      </Fragment>
+    );
+  };
+
   return (
     <article
       className="pokemon-info"
@@ -200,39 +209,44 @@ const PokemonInfo = () => {
         borderRadius: "10px",
       }}
     >
-      <section
-        className="pokemon-text"
-        style={{ display: "block", margin: "1rem 0" }}
-      >
-        <p>{pokeText}</p>
-      </section>
-
-      <section className={"strengths display"} style={{ display: "flex" }}>
-        <p style={{ margin: 0 }}>Strong Against:</p>
-        <ul style={{ padding: "0", margin: "0" }}>
-          {getStrengthsOrWeaknesses(attributeType.strengths)}
-        </ul>
-      </section>
-      <section className={"strengths display"} style={{ display: "flex" }}>
-        <p style={{ marginBlockEnd: "0" }}>Weak Against:</p>
-        <ul style={{ padding: "0", margin: "0" }}>
-          {getStrengthsOrWeaknesses(attributeType.weaknesses)}
-        </ul>
-      </section>
+      {!selectedPokemon && renderIntroText()}
       {selectedPokemon && (
-        <section
-          className={"pokemon-capture"}
-          style={{ display: "block", margin: "1rem 0" }}
-        >
-          <p
-            style={{ marginBlockEnd: "0" }}
-          >{`Recommended ball for capturing: ${determinePokeball(
-            parseInt(selectedPokemon.capture_rate)
-          )}`}</p>
-          <p>{`Recommended Status Effects to increase capture: ${determineStatusEffects(
-            combatStats.weakness
-          )}`}</p>
-        </section>
+        <Fragment>
+          <section
+            className="pokemon-text"
+            style={{ display: "block", margin: "1rem 0" }}
+          >
+            <p>{pokeText}</p>
+          </section>
+
+          <section className={"strengths display"} style={{ display: "flex" }}>
+            <p style={{ margin: 0 }}>Strong Against:</p>
+            <ul style={{ padding: "0", margin: "0" }}>
+              {getStrengthsOrWeaknesses(attributeType.strengths)}
+            </ul>
+          </section>
+          <section className={"strengths display"} style={{ display: "flex" }}>
+            <p style={{ marginBlockEnd: "0" }}>Weak Against:</p>
+            <ul style={{ padding: "0", margin: "0" }}>
+              {getStrengthsOrWeaknesses(attributeType.weaknesses)}
+            </ul>
+          </section>
+          {selectedPokemon && (
+            <section
+              className={"pokemon-capture"}
+              style={{ display: "block", margin: "1rem 0" }}
+            >
+              <p
+                style={{ marginBlockEnd: "0" }}
+              >{`Recommended ball for capturing: ${determinePokeball(
+                parseInt(selectedPokemon.capture_rate)
+              )}`}</p>
+              <p>{`Recommended Status Effects to increase capture: ${determineStatusEffects(
+                combatStats.weakness
+              )}`}</p>
+            </section>
+          )}
+        </Fragment>
       )}
     </article>
   );

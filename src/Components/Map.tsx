@@ -151,6 +151,21 @@ const Map = () => {
       >
         {renderRoutes()}
       </div>
+      {selectedPokemon && (
+        <div
+          style={{
+            position: "absolute",
+            top: "0",
+            left: "50%",
+            backgroundColor: "rgb(50,50,50)",
+            color: "white",
+            transform: "translateX(-50%)",
+            padding: "0 0.75rem 0.5rem 0.75rem",
+          }}
+        >
+          <span>{`${selectedPokemon?.name}'s Locations`}</span>
+        </div>
+      )}
     </section>
   );
 };
