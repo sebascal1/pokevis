@@ -97,6 +97,7 @@ const Map = () => {
       );
     });
   };
+  console.log(mapArr);
 
   return (
     <section
@@ -151,6 +152,23 @@ const Map = () => {
       >
         {renderRoutes()}
       </div>
+      {/*If no routes are found for a selected pokemon, indicate location unknown*/}
+      {locations.length === 0 && selectedPokemon && (
+        <div
+          style={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            backgroundColor: "rgb(50,50,50)",
+            color: "white",
+            transform: "translate(-50%, -50%)",
+            padding: "0.5rem 0.75rem 0.5rem 0.75rem",
+            borderRadius: "0.75rem",
+          }}
+        >
+          Location Unknown
+        </div>
+      )}
       {selectedPokemon && (
         <div
           style={{
