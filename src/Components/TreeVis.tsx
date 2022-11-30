@@ -2,16 +2,15 @@ import * as d3 from "d3";
 import React, { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
-import { rawDataEntry, VisProps } from "../Utils/types";
+import { pokemonTypesObject, rawDataEntry, VisProps } from "../Utils/types";
 import { baseTotalColors, colourTypeScale, pokemonTypes } from "../Utils";
 import PokedexEntry from "./pokedexEntry";
 import { HierarchyNode } from "d3";
-import { selectPokemon, UpdateClicked } from "../Actions";
+import { selectPokemon, UpdateClicked, UpdateTypes } from "../Actions";
 import { RootState } from "../Reducers/rootReducer";
 
 const TreeVis: React.FC<VisProps> = ({ data }) => {
   const [pokemon, setPokemon] = useState<rawDataEntry | null>(null);
-  //const [clicked, toggleClick] = useState(false);
   const combatStats = useSelector((state: RootState) => state.combatStats);
   const selectedPokemon = useSelector(
     (state: RootState) => state.selectedPokemon
@@ -24,11 +23,11 @@ const TreeVis: React.FC<VisProps> = ({ data }) => {
       : 0.5 * window.innerWidth * 0.95; // // outer width, in pixels
   let radius = width / 2.5; //get the radius as half the width
   let donutThickness = 10; //thickness for each arc
-  let innerRadius = radius / 2; // inner radius of pie, in pixels (non-zero for donut)
-  let outerRadius = innerRadius + donutThickness; // outer radius of pie, in pixels
-  let innerRadius2 = radius / 1.4;
-  let outerRadius2 = innerRadius2 + donutThickness; // outer radius of pie, in pixels
-  const mobileView = window.innerWidth < 700;
+  let innerRadius = radius / 2; // inner radius of the inner type ring, in pixels
+  let outerRadius = innerRadius + donutThickness; // outer radius of the inner type ring, in pixels
+  let innerRadius2 = radius / 1.4; // inner radius of the outer type ring (secondary type arcs)
+  let outerRadius2 = innerRadius2 + donutThickness; // outer radius of the outer type ring, in pixels
+  const mobileView = window.innerWidth < 700; //boolean to check whether or no we are in mobile view or not
 
   const r = 2; // radius of nodes
   // @ts-ignore
@@ -120,11 +119,6 @@ const TreeVis: React.FC<VisProps> = ({ data }) => {
 
     //create the root object for the tree data
     const root = partition(dataObj);
-
-    // Compute labels and titles.
-    // const descendants = root.descendants();
-    // @ts-ignore
-    //const L: string[] = descendants.map((d) => d.data?.name) as string[];
 
     //create the Arcs for the inner and outer circles in order to group pokemon of similar types together
     const arc = d3
@@ -298,6 +292,26 @@ const TreeVis: React.FC<VisProps> = ({ data }) => {
       // @ts-ignore
       .on("mouseenter", function (e, datum: HierarchyNode<rawDataEntry>) {
         if (clicked) return;
+
+        //send to the redux state the types
+        if (datum.depth === 1) {
+          console.log(datum);
+          let payload: pokemonTypesObject = {
+            primary: datum.data.name,
+            secondary: "",
+          };
+          console.log(payload);
+          dispatch(UpdateTypes(payload));
+        } else if (datum.depth === 2) {
+          let payload: pokemonTypesObject = {
+            //@ts-ignore
+            primary: datum.parent.data.name,
+            secondary: datum.data.name,
+          };
+          console.log(payload);
+          dispatch(UpdateTypes(payload));
+        }
+
         //mute all paths that dont belong to the subset
         d3.selectAll("#treePath")
           .filter((d: any) => {
@@ -364,6 +378,11 @@ const TreeVis: React.FC<VisProps> = ({ data }) => {
       //on mouse leave event, reset everything to default
       .on("mouseleave", function () {
         if (clicked) return;
+        let payload: pokemonTypesObject = {
+          primary: null,
+          secondary: "",
+        };
+        dispatch(UpdateTypes(payload));
         svg.selectAll("#donutArc").style("opacity", 1);
         d3.selectAll("#treePath").style("stroke-opacity", strokeOpacity);
         svg.selectAll("#pokeball").style("opacity", 1);
@@ -379,25 +398,6 @@ const TreeVis: React.FC<VisProps> = ({ data }) => {
         "transform",
         (d: any) => `rotate(${(d.x * 180) / Math.PI - 90}) translate(${d.y},0)`
       );
-
-    // if (L)
-    //   node
-    //     .append("g")
-    //     .append("text")
-    //     .attr("transform", (d: any) => `rotate(${d.x >= Math.PI ? 180 : 0})`)
-    //     .attr("dy", "0.32em")
-    //     .attr("x", (d: any) => (d.x < Math.PI && !d.children ? 12 : -12))
-    //     .attr("text-anchor", (d: any) =>
-    //       d.x < Math.PI && !d.children ? "start" : "end"
-    //     )
-    //     .attr("paint-order", "stroke")
-    //     .attr("stroke", halo)
-    //     .attr("stroke-width", haloWidth)
-    //     .style("font-size", (d: HierarchyNode<any>) =>
-    //       d.data?.name === hoveredPokemonData?.data.name ? "15px" : "5px"
-    //     )
-    //     .text((d, i) => (d.depth < 3 ? "" : L[i]))
-    //     .style("background", "#def1f1");
 
     //Apply to your element(s)
     node
@@ -764,7 +764,6 @@ const TreeVis: React.FC<VisProps> = ({ data }) => {
       <PokedexEntry
         data={pokemon !== null ? pokemon : selectedPokemon}
         innerRadius={innerRadius}
-        // radius={radius}
       />
     </section>
   );

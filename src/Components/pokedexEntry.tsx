@@ -1,5 +1,7 @@
 //Component to show the sprite of the selected pokemon within the center circle of treeVis
 import React from "react";
+import { useSelector } from "react-redux";
+
 import { capitalize } from "../Utils";
 import { rawDataEntry } from "../Utils/types";
 //bring in all the type images
@@ -21,6 +23,7 @@ import psychicType from "../Icons/psychic_type.png";
 import rockType from "../Icons/rock_type.png";
 import steelType from "../Icons/steel_type.png";
 import waterType from "../Icons/water_type.png";
+import { RootState } from "../Reducers/rootReducer";
 
 type pokedexEntryProps = {
   data: rawDataEntry | null;
@@ -29,7 +32,9 @@ type pokedexEntryProps = {
 };
 
 //PokedexEntry takes in the data of the pokemon to display, aswell as the innerRadius of treeVis
-const pokedexEntry: React.FC<pokedexEntryProps> = ({ data, innerRadius }) => {
+const PokedexEntry: React.FC<pokedexEntryProps> = ({ data, innerRadius }) => {
+  //get a reference to the redux state object for the pokemon types
+  const pokemonTypeObject = useSelector((state: RootState) => state.types);
   //calculate the length of one side of the biggest square that can fit within the inner circle
   const length = Math.sqrt(2 * Math.pow(innerRadius / 2, 2));
   //determine whether we're in movile view or not depending on the screen size
@@ -57,9 +62,6 @@ const pokedexEntry: React.FC<pokedexEntryProps> = ({ data, innerRadius }) => {
     water: waterType,
   };
 
-  //if there is no data, then return early and don't display anything
-  if (data === null) return <div></div>;
-
   //function to render the type images for a pokemon depending on the type or types it has
   const renderTypeImages = (type1: string, type2: string) => {
     return (
@@ -84,7 +86,7 @@ const pokedexEntry: React.FC<pokedexEntryProps> = ({ data, innerRadius }) => {
           <img
             className="pokedex-type-image"
             // @ts-ignore
-            src={typeDict[data.type1]}
+            src={typeDict[type1]}
             alt={"no pokemon found"}
             style={{ width: "5rem" }}
           />
@@ -102,7 +104,7 @@ const pokedexEntry: React.FC<pokedexEntryProps> = ({ data, innerRadius }) => {
             <img
               className="pokedex-type-image"
               // @ts-ignore
-              src={typeDict[data.type2]}
+              src={typeDict[type2]}
               alt={"no pokemon found"}
               style={{ width: "5rem" }}
             />
@@ -111,6 +113,36 @@ const pokedexEntry: React.FC<pokedexEntryProps> = ({ data, innerRadius }) => {
       </div>
     );
   };
+
+  //if data is null but the pokemon data type object is not empty, render it
+  if (data == null && pokemonTypeObject.primary !== null) {
+    return (
+      <div
+        className={"pokedex"}
+        style={{
+          position: "absolute",
+          display: "flex",
+          flexDirection: "column",
+          height: length,
+          width: length,
+          border: "none",
+          top: `50%`,
+          left: "50%",
+          background: "transparent",
+          transform: `translate(${-50}%, -50%)`,
+          alignItems: "center",
+        }}
+      >
+        {renderTypeImages(
+          pokemonTypeObject.primary,
+          pokemonTypeObject.secondary
+        )}
+      </div>
+    );
+  }
+
+  //if there is no data, then return early and don't display anything
+  if (data === null) return <div></div>;
 
   //render the pokemon information
   return (
@@ -161,4 +193,4 @@ const pokedexEntry: React.FC<pokedexEntryProps> = ({ data, innerRadius }) => {
   );
 };
 
-export default pokedexEntry;
+export default PokedexEntry;

@@ -1,10 +1,15 @@
-import { combatStatsObject, rawDataEntry } from "../Utils/types";
+import {
+  combatStatsObject,
+  pokemonTypesObject,
+  rawDataEntry,
+} from "../Utils/types";
 
 //type definition for the root state
 export type RootState = {
   selectedPokemon: rawDataEntry | null;
   combatStats: combatStatsObject;
   clicked: boolean;
+  types: pokemonTypesObject;
 };
 
 //type definition for the actions
@@ -22,6 +27,8 @@ export const rootReducer = (
       return { ...state, combatStats: action.payload };
     case "UPDATE_CLICKED":
       return { ...state, clicked: action.payload };
+    case "UPDATE_TYPES":
+      return { ...state, types: action.payload };
     default:
       return { ...state, selectedPokemon: null };
   }
@@ -32,4 +39,5 @@ const initialState: RootState = {
   selectedPokemon: null,
   combatStats: { strengths: [], weakness: [] },
   clicked: false,
+  types: { primary: null, secondary: "" },
 };

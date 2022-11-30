@@ -63,3 +63,9 @@ export type combatStatsObject = {
   strengths: string[];
   weakness: string[];
 };
+
+//types object for when selecting a type
+export type pokemonTypesObject = {
+  primary: string | null;
+  secondary: string;
+};
