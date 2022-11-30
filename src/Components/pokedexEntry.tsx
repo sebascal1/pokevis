@@ -114,7 +114,7 @@ const PokedexEntry: React.FC<pokedexEntryProps> = ({ data, innerRadius }) => {
     );
   };
 
-  //if data is null but the pokemon data type object is not empty, render it
+  //if data is null but the pokemon data type object is not empty, render it. This means the user is hovering above a type arc
   if (data == null && pokemonTypeObject.primary !== null) {
     return (
       <div
