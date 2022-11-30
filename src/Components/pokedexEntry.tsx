@@ -1,8 +1,8 @@
 //Component to show the sprite of the selected pokemon within the center circle of treeVis
-
 import React from "react";
 import { capitalize } from "../Utils";
 import { rawDataEntry } from "../Utils/types";
+//bring in all the type images
 import bugType from "../Icons/bug_type.png";
 import darkType from "../Icons/dark_type.png";
 import dragonType from "../Icons/dragon_type.png";
@@ -29,11 +29,7 @@ type pokedexEntryProps = {
 };
 
 //PokedexEntry takes in the data of the pokemon to display, aswell as the innerRadius of treeVis
-const pokedexEntry: React.FC<pokedexEntryProps> = ({
-  data,
-  innerRadius,
-  //radius,
-}) => {
+const pokedexEntry: React.FC<pokedexEntryProps> = ({ data, innerRadius }) => {
   //calculate the length of one side of the biggest square that can fit within the inner circle
   const length = Math.sqrt(2 * Math.pow(innerRadius / 2, 2));
   //determine whether we're in movile view or not depending on the screen size
@@ -61,6 +57,7 @@ const pokedexEntry: React.FC<pokedexEntryProps> = ({
     water: waterType,
   };
 
+  //if there is no data, then return early and don't display anything
   if (data === null) return <div></div>;
 
   //function to render the type images for a pokemon depending on the type or types it has
@@ -83,6 +80,7 @@ const pokedexEntry: React.FC<pokedexEntryProps> = ({
             padding: "0",
           }}
         >
+          {/*  render the image type of the pokemon */}
           <img
             className="pokedex-type-image"
             // @ts-ignore
@@ -114,6 +112,7 @@ const pokedexEntry: React.FC<pokedexEntryProps> = ({
     );
   };
 
+  //render the pokemon information
   return (
     <div
       className={"pokedex"}

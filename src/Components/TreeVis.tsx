@@ -7,7 +7,7 @@ import { baseTotalColors, colourTypeScale, pokemonTypes } from "../Utils";
 import PokedexEntry from "./pokedexEntry";
 import { HierarchyNode } from "d3";
 import { selectPokemon, UpdateClicked } from "../Actions";
-import { RootState } from "../rootReducer";
+import { RootState } from "../Reducers/rootReducer";
 
 const TreeVis: React.FC<VisProps> = ({ data }) => {
   const [pokemon, setPokemon] = useState<rawDataEntry | null>(null);

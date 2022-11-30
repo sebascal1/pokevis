@@ -12,7 +12,7 @@ function App() {
   const [data, setData] = useState<Promise<void> | null | rawDataEntry[]>(null);
   // const [sidebarActive, setActiveBar] = useState(true);
 
-  //get the data upon loading the app for the first time
+  //get the csv data upon loading the app for the first time
   useEffect(() => {
     d3.csv("./pokemon.csv")
       .then((response) => {
@@ -35,6 +35,7 @@ function App() {
           <PokemonInfo />
           {/*If the data has been loaded successfully, display treeVis component and pass the loaded data*/}
           {data !== null && <TreeVis data={data as rawDataEntry[]} />}
+          {/*  render the button for the help link */}
           <div
             style={{
               position: "absolute",
@@ -52,6 +53,7 @@ function App() {
 
             //onClick={() => setActiveBar(true)}
           >
+            {/*  anchor tag for the help link */}
             <a
               style={{ color: "white" }}
               href={

@@ -1,3 +1,4 @@
+//colour dict for the distinct types
 export const colourTypeScale = {
   normal: "#a8a877",
   fire: "#ef8030",
@@ -25,10 +26,12 @@ export const baseTotalColors = {
   low: "#012f61",
 };
 
+//helper function to capitalize a string
 export const capitalize = (s: string): string => {
   return s[0].toUpperCase() + s.slice(1);
 };
 
+//array for the pokemon types
 export const pokemonTypes = [
   "normal",
   "fire",

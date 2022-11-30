@@ -1,12 +1,16 @@
-import { combatStatsObject, rawDataEntry } from "./Utils/types";
+import { combatStatsObject, rawDataEntry } from "../Utils/types";
 
+//type definition for the root state
 export type RootState = {
   selectedPokemon: rawDataEntry | null;
   combatStats: combatStatsObject;
   clicked: boolean;
 };
+
+//type definition for the actions
 type Action = { type: string; payload: any };
 
+//reducer for the application to update the redux state based on the actions
 export const rootReducer = (
   state: RootState = initialState,
   action: Action
@@ -23,6 +27,7 @@ export const rootReducer = (
   }
 };
 
+//set the initial state for the redux state
 const initialState: RootState = {
   selectedPokemon: null,
   combatStats: { strengths: [], weakness: [] },

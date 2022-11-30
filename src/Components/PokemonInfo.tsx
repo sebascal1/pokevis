@@ -2,7 +2,7 @@ import React, { Fragment, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
 
-import { RootState } from "../rootReducer";
+import { RootState } from "../Reducers/rootReducer";
 import bugType from "../Icons/bug_type.png";
 import darkType from "../Icons/dark_type.png";
 import dragonType from "../Icons/dragon_type.png";
@@ -24,11 +24,15 @@ import waterType from "../Icons/water_type.png";
 import { updateStrengthArray } from "../Actions";
 import { combatStatsObject } from "../Utils/types";
 
+//component to be used in order to display the specific information of a pokemon
 const PokemonInfo = () => {
+  //grab the selected pokemon from the redux state
   const selectedPokemon = useSelector(
     (state: RootState) => state.selectedPokemon
   );
+  //get the combat stats (strengths and weaknesses) array for the selected pokemon from the redux state
   const combatStats = useSelector((state: RootState) => state.combatStats);
+  //set the info text for the pokemon using the state system
   const [pokeText, setPokeText] = useState("");
   const dispatch = useDispatch();
 
@@ -60,25 +64,34 @@ const PokemonInfo = () => {
     water: waterType,
   };
 
+  //run the use effect loop to update the pokemon info anytime the selected pokemon is updated
   useEffect(() => {
+    //get the data of the selected pokemon from the api
     const getData = async () => {
       if (selectedPokemon === null || selectedPokemon === undefined) return;
       const data = await axios.get(
         `https://pokeapi.co/api/v2/pokemon-species/${selectedPokemon.pokedex_number}/`
       );
 
+      //get the pokemon text from the api response
       // @ts-ignore
       setPokeText(data.data.flavor_text_entries[0].flavor_text);
     };
 
+    //set the combat stats and update the redux state
     const setCombatStats = () => {
+      //get both the strengths and weaknesses arrays
       const strengthsArray = getAttributes(attributeType.strengths);
       const weaknessArray = getAttributes(attributeType.weaknesses);
 
+      //quick edit to replace the word fight with fighting in order to get the fighting image type from the disctionary
       findAndReplace(strengthsArray, "fight", "fighting");
       findAndReplace(weaknessArray, "fight", "fighting");
+
+      //find the own pokemon's types and remove them from the strengths array
       findSelectedPokemonTypeAndDelete(strengthsArray);
 
+      //set up and dispatch the combat object to update the redux state
       const combatObject: combatStatsObject = {
         strengths: strengthsArray,
         weakness: weaknessArray,
@@ -102,6 +115,7 @@ const PokemonInfo = () => {
     if (indexNumber > -1) arr[indexNumber] = replacement;
   };
 
+  //function to find the primary type of the pokemon in the strengths array and remove it
   const findSelectedPokemonTypeAndDelete = (arr: string[]) => {
     const type = selectedPokemon?.type1;
     const indexNumber = arr.findIndex((entry) => entry === type);
@@ -134,6 +148,7 @@ const PokemonInfo = () => {
     });
   };
 
+  //determine the recommended pokeball to use for a specific pokemon based on the capture rate of the pokemon
   const determinePokeball = (captureRate: number) => {
     if (captureRate < 10) {
       return "Master Ball";
@@ -145,25 +160,30 @@ const PokemonInfo = () => {
     return "Poke Ball";
   };
 
+  //helper function to get the strenghts and weaknesses of the selected pokemon
   const getAttributes = (type: attributeType): string[] => {
+    //if there is no selected pokemon, exit earlt
     if (selectedPokemon === null) return [];
+    //turn the selected pokemon object into an array
     const pokemonEntryAsArray = Object.entries(selectedPokemon);
+    //filter the contents of the object by getting the entries with the word "against" in them, these are the entries associated with whether a pokemon is strong or weak against a certain pokemon type
     const attrArray = pokemonEntryAsArray.filter((entry) =>
       entry[0].includes("against")
     );
     let filteredAttributes;
-    //depending on the type, filter the pokemon
+    //depending on the type, filter the attributes to get the strengths and weaknesses
     if (type === attributeType.strengths) {
       filteredAttributes = attrArray.filter((entry) => parseInt(entry[1]) < 1);
     } else if (type === attributeType.weaknesses) {
       filteredAttributes = attrArray.filter((entry) => parseInt(entry[1]) > 1);
     }
-
+    //if there are none, return and empty array
     if (filteredAttributes === undefined) return [];
 
     return filteredAttributes.map((entry) => entry[0].split("_")[1]);
   };
 
+  //helper function to determine the status effects to inflict on a pokemon based on the type
   const determineStatusEffects = (weaknessArr: string[]) => {
     const statusTypes = ["fire", "electric", "ice", "poison"];
 
@@ -174,6 +194,7 @@ const PokemonInfo = () => {
       poison: "poison, ",
     };
 
+    //return the status effects as a string concatinating the status effects that will be super effective against the pokemon
     return weaknessArr.reduce((prevString, weakness) => {
       if (statusTypes.includes(weakness)) {
         // @ts-ignore
@@ -184,6 +205,7 @@ const PokemonInfo = () => {
     }, "");
   };
 
+  //helper function to render the intro text when a pokemon is not selected
   const renderIntroText = () => {
     return (
       <Fragment>
@@ -209,7 +231,9 @@ const PokemonInfo = () => {
         borderRadius: "10px",
       }}
     >
+      {/*if a pokemon is not selected, render the intro text*/}
       {!selectedPokemon && renderIntroText()}
+      {/*else render the pokemon information*/}
       {selectedPokemon && (
         <Fragment>
           <section
